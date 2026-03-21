@@ -2,13 +2,14 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app.models.utilisateur import Utilisateur
 from app.core.security import hash_password, verify_password, create_token
+from app.models.patient import Patient
+from app.models.dermatologue import Dermatologue
 
 def register(db: Session, user):
-    # ✅ check email
+
     existing = db.query(Utilisateur).filter(Utilisateur.email == user.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already exists")
-
     # ✅ password validation
     if len(user.password) < 6:
         raise HTTPException(status_code=400, detail="Password too short")
@@ -24,7 +25,17 @@ def register(db: Session, user):
     db.commit()
     db.refresh(new_user)
 
-    # ✅ return safe data
+    # 🔥 هنا الفرق
+    if user.role == "patient":
+        patient = Patient(user_id=new_user.id)
+        db.add(patient)
+
+    elif user.role == "doctor":
+        doctor = Dermatologue(user_id=new_user.id)
+        db.add(doctor)
+
+    db.commit()
+
     return {
         "id": new_user.id,
         "email": new_user.email,

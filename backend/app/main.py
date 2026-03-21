@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from app.core.database import Base, engine
 from app.models.utilisateur import Utilisateur
 from app.routers import auth, user
+from app.models.patient import Patient
+from app.models.dermatologue import Dermatologue
 
 app = FastAPI()
 
