@@ -41,3 +41,41 @@ def give_avis(image_id: int,
     db.refresh(new_avis)
 
     return {"message": "Avis added"}
+
+@router.get("/my")
+def get_my_avis(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    if current_user.role != "patient":
+        raise HTTPException(status_code=403, detail="Only patients")
+
+    images = db.query(Image).filter(Image.user_id == current_user.id).all()
+
+    result = []
+
+    for img in images:
+        for avis in img.avis:
+            result.append({
+                "image_id": img.id,
+                "commentaire": avis.commentaire,
+                "diagnostic": avis.diagnostic,
+                "doctor_id": avis.dermatologue_id
+            })
+
+    return result
+
+@router.get("/doctor")
+def get_doctor_avis(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+
+    if current_user.role != "doctor":
+        raise HTTPException(status_code=403, detail="Only doctors")
+
+    doctor = db.query(Dermatologue).filter(Dermatologue.user_id == current_user.id).first()
+
+    return db.query(Avis).filter(Avis.dermatologue_id == doctor.id).all()
+

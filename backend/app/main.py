@@ -20,6 +20,7 @@ from app.routers import (
     prediction,
     notifications,
     referral,
+    reservation, disponibilite,
 )
 
 app = FastAPI(title="Skin Cancer API")
@@ -43,6 +44,8 @@ app.include_router(suivi.router)
 app.include_router(prediction.router)
 app.include_router(notifications.router)
 app.include_router(referral.router)
+app.include_router(reservation.router)
+app.include_router(disponibilite.router)
 
 
 @app.get("/")
