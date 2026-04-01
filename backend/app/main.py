@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.core.database import Base, engine
 
@@ -20,7 +21,9 @@ from app.routers import (
     prediction,
     notifications,
     referral,
-    reservation, disponibilite,
+    reservation,
+    disponibilite,
+    stats,
 )
 
 app = FastAPI(title="Skin Cancer API")
@@ -28,7 +31,9 @@ app = FastAPI(title="Skin Cancer API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    # Flutter web (localhost:PORT) + API (127.0.0.1:8000) : origines différentes ; regex renforce le dev local.
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?",
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -46,6 +51,8 @@ app.include_router(notifications.router)
 app.include_router(referral.router)
 app.include_router(reservation.router)
 app.include_router(disponibilite.router)
+app.include_router(stats.router)
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 @app.get("/")

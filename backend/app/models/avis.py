@@ -13,6 +13,7 @@ class Avis(Base):
 
     commentaire = Column(Text, nullable=False)
     diagnostic = Column(String, nullable=False)
+    rating = Column(Integer, nullable=True)  # 1 → 5
 
     # 🔗 relations
     image = relationship("Image", back_populates="avis")

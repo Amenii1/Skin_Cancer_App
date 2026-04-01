@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, Request
 from sqlalchemy import case
 from sqlalchemy.orm import Session
 import base64
@@ -30,6 +30,7 @@ def _parse_observation_date(raw: str):
 
 @router.post("/upload")
 async def upload_image(
+    request: Request,
     observation_date: str = Form(
         ...,
         description="Date déclarée par le patient (prise de vue / observation), format YYYY-MM-DD",
@@ -72,11 +73,13 @@ async def upload_image(
         "image_id": new_image.id,
         "observation_date": obs.isoformat(),
         "path": file_path,
+        "image_url": f"{request.base_url}uploads/{os.path.basename(file_path)}",
     }
 
 
 @router.get("/list")
 def list_my_images(
+    request: Request,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
@@ -105,6 +108,7 @@ def list_my_images(
                 "result": r.result,
                 "confidence": r.confidence,
                 "path": r.path,
+                "image_url": f"{request.base_url}uploads/{os.path.basename(r.path)}",
             }
             for r in rows
         ]
