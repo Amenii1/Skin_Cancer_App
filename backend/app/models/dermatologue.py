@@ -14,6 +14,7 @@ class Dermatologue(Base):
     ville = Column(String, nullable=True)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+    numero_rpps = Column(String, nullable=True)
 
     # 🔗 relation
     user = relationship("Utilisateur", back_populates="dermatologue")

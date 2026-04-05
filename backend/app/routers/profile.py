@@ -1,5 +1,8 @@
+from datetime import date
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from app.core.dependencies import get_current_user, get_db
 from app.models.utilisateur import Utilisateur
 from app.models.patient import Patient
@@ -19,6 +22,7 @@ def get_profile(
         "nom": current_user.nom,
         "email": current_user.email,
         "role": current_user.role,
+        "telephone": current_user.telephone,
     }
 
     if current_user.role == "patient":
@@ -30,6 +34,9 @@ def get_profile(
                 "ville": patient.ville,
                 "latitude": patient.latitude,
                 "longitude": patient.longitude,
+                "date_naissance": patient.date_naissance.isoformat()
+                if patient.date_naissance
+                else None,
             }
 
     elif current_user.role == "doctor":
@@ -43,6 +50,7 @@ def get_profile(
                 "ville": doctor.ville,
                 "latitude": doctor.latitude,
                 "longitude": doctor.longitude,
+                "numero_rpps": doctor.numero_rpps,
             }
 
     return data
@@ -65,9 +73,25 @@ def update_profile(
             raise HTTPException(status_code=400, detail="Email already used")
         current_user.email = data.email
 
+    if data.telephone is not None:
+        current_user.telephone = data.telephone
+
     if current_user.role == "patient":
         patient = db.query(Patient).filter(Patient.user_id == current_user.id).first()
         if patient:
+            if data.date_naissance is not None:
+                if data.date_naissance.strip() == "":
+                    patient.date_naissance = None
+                else:
+                    try:
+                        patient.date_naissance = date.fromisoformat(
+                            data.date_naissance.strip()
+                        )
+                    except ValueError:
+                        raise HTTPException(
+                            status_code=400,
+                            detail="date_naissance must be YYYY-MM-DD",
+                        )
             if data.type_peau is not None:
                 patient.type_peau = data.type_peau
             if data.antecedents_familiaux is not None:
@@ -94,6 +118,8 @@ def update_profile(
                 doctor.latitude = data.latitude
             if data.longitude is not None:
                 doctor.longitude = data.longitude
+            if data.numero_rpps is not None:
+                doctor.numero_rpps = data.numero_rpps
 
     db.commit()
 

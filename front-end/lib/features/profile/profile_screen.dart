@@ -51,6 +51,50 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.dispose();
   }
 
+  Future<void> _pickBirthDate(
+      BuildContext context, ProfileProvider prov) async {
+    final now = DateTime.now();
+    final initial = prov.birthDate ??
+        DateTime(now.year - 25, now.month, now.day);
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: DateTime(1920),
+      lastDate: DateTime(now.year - 5, now.month, now.day),
+      locale: const Locale('fr', 'FR'),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              surface: AppColors.bgWhite,
+              onSurface: AppColors.textPrimary,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.primary,
+                textStyle: const TextStyle(
+                  fontFamily: 'Nunito',
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            dialogTheme: const DialogThemeData(
+              backgroundColor: AppColors.bgWhite,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      prov.setBirthDate(picked);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final prov = context.watch<ProfileProvider>();
@@ -278,14 +322,114 @@ class _ProfileScreenState extends State<ProfileScreen>
           keyboardType: TextInputType.phone,
         ),
         const SizedBox(height: 14),
-        _InfoRow(
-          label: 'Date de naissance',
-          value: prov.birthDate,
-          icon: Icons.cake_outlined,
-          editMode: false,
-          controller:
-              TextEditingController(text: prov.birthDate),
+
+      // ── Date de naissance avec picker ──
+      GestureDetector(
+        onTap: () => _pickBirthDate(context, prov),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+              horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: AppColors.bgSoft,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: prov.birthDate == null
+                  ? AppColors.riskMedium.withOpacity(0.4)
+                  : AppColors.border,
+            ),
+          ),
+          child: Row(children: [
+            Container(
+              width: 36, height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.cake_outlined,
+                  color: AppColors.primary, size: 16),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Date de naissance',
+                      style: TextStyle(
+                        fontFamily: 'Nunito', fontSize: 11,
+                        color: AppColors.textHint,
+                      )),
+                  Row(children: [
+                    Text(
+                      prov.birthDateFormatted,
+                      style: TextStyle(
+                        fontFamily: 'Nunito', fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: prov.birthDate == null
+                            ? AppColors.textHint
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                    if (prov.age != null) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary
+                              .withOpacity(0.1),
+                          borderRadius:
+                              BorderRadius.circular(6),
+                        ),
+                        child: Text('${prov.age} ans',
+                            style: const TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
+                            )),
+                      ),
+                    ],
+                  ]),
+                ],
+              ),
+            ),
+            Icon(
+              prov.birthDate == null
+                  ? Icons.add_circle_outline_rounded
+                  : Icons.edit_rounded,
+              color: AppColors.primary,
+              size: 18,
+            ),
+          ]),
         ),
+      ),
+        if (prov.birthDate == null) ...[
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(
+                horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.riskMedium.withOpacity(0.08),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                  color: AppColors.riskMedium.withOpacity(0.2)),
+            ),
+            child: const Row(children: [
+              Icon(Icons.info_outline_rounded,
+                  color: AppColors.riskMedium, size: 14),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'Renseignez votre date de naissance pour un suivi personnalisé.',
+                  style: TextStyle(
+                    fontFamily: 'Nunito', fontSize: 11,
+                    color: AppColors.riskMedium,
+                  ),
+                ),
+              ),
+            ]),
+          ),
+        ],
         const SizedBox(height: 14),
         _InfoRow(
           label: 'Groupe sanguin',
@@ -447,14 +591,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 color: AppColors.riskLow, size: 20),
           ]),
         ),
-        const SizedBox(height: 14),
-        _ToggleRow(
-          icon: Icons.fingerprint_rounded,
-          label: 'Connexion biométrique',
-          subtitle: 'Touch ID / Face ID',
-          value: prov.biometricEnabled,
-          onToggle: prov.toggleBiometric,
-        ),
+       
         const Divider(color: AppColors.border, height: 20),
         _ToggleRow(
           icon: Icons.notifications_outlined,

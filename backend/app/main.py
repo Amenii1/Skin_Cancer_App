@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.core.database import Base, engine
+from app.core.sqlite_migrate import run_sqlite_migrations
 
 from app.models.utilisateur import Utilisateur  # noqa: F401
 from app.models.patient import Patient  # noqa: F401
@@ -39,6 +40,7 @@ app.add_middleware(
 )
 
 Base.metadata.create_all(bind=engine)
+run_sqlite_migrations()
 
 app.include_router(auth.router)
 app.include_router(user.router)

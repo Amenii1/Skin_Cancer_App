@@ -21,6 +21,8 @@ class _RegisterScreenState extends State<RegisterScreen>
   final _phoneCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
+  DateTime? _birthDate;
+
   // Champs dermatologue
   final _rppsCtrl = TextEditingController();
   final _specialityCtrl = TextEditingController();
@@ -35,13 +37,11 @@ class _RegisterScreenState extends State<RegisterScreen>
     super.initState();
     _animCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 700));
-    _fadeAnim =
-        CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.06),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-        parent: _animCtrl, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(parent: _animCtrl, curve: Curves.easeOutCubic));
     _animCtrl.forward();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AuthProvider>().reset();
@@ -62,6 +62,51 @@ class _RegisterScreenState extends State<RegisterScreen>
     super.dispose();
   }
 
+  String _birthDateFormatted(DateTime date) {
+    final months = [
+      'Jan',
+      'Fév',
+      'Mar',
+      'Avr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Aoû',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Déc'
+    ];
+    return '${date.day} ${months[date.month - 1]} ${date.year}';
+  }
+
+  Future<void> _selectBirthDate(BuildContext context) async {
+    final now = DateTime.now();
+    final selected = await showDatePicker(
+      context: context,
+      initialDate: _birthDate ?? DateTime(now.year - 30, now.month, now.day),
+      firstDate: DateTime(now.year - 120),
+      lastDate: DateTime(now.year - 13),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: AppColors.primary,
+              onPrimary: Colors.white,
+              onSurface: AppColors.textPrimary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (selected != null) {
+      setState(() {
+        _birthDate = selected;
+      });
+    }
+  }
+
   Future<void> _onRegister() async {
     if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
@@ -72,15 +117,13 @@ class _RegisterScreenState extends State<RegisterScreen>
       password: _passCtrl.text,
       confirmPassword: _confirmCtrl.text,
       phone: _phoneCtrl.text.trim(),
+      dateOfBirth: _birthDate,
       speciality: _specialityCtrl.text.trim().isEmpty
           ? null
           : _specialityCtrl.text.trim(),
-      rppsNumber: _rppsCtrl.text.trim().isEmpty
-          ? null
-          : _rppsCtrl.text.trim(),
-      cabinetAddress: _cabinetCtrl.text.trim().isEmpty
-          ? null
-          : _cabinetCtrl.text.trim(),
+      rppsNumber: _rppsCtrl.text.trim().isEmpty ? null : _rppsCtrl.text.trim(),
+      cabinetAddress:
+          _cabinetCtrl.text.trim().isEmpty ? null : _cabinetCtrl.text.trim(),
     );
     if (ok && mounted) {
       if (auth.isDermatologue) {
@@ -145,7 +188,8 @@ class _RegisterScreenState extends State<RegisterScreen>
         GestureDetector(
           onTap: () => context.go('/login'),
           child: Container(
-            width: 42, height: 42,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
               color: AppColors.bgWhite,
               borderRadius: BorderRadius.circular(12),
@@ -158,7 +202,8 @@ class _RegisterScreenState extends State<RegisterScreen>
         const SizedBox(height: 24),
         Row(children: [
           Container(
-            width: 38, height: 38,
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(10),
@@ -169,7 +214,8 @@ class _RegisterScreenState extends State<RegisterScreen>
           const SizedBox(width: 10),
           const Text('DermaScan AI',
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 16,
+                fontFamily: 'Nunito',
+                fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: AppColors.primary,
               )),
@@ -177,16 +223,20 @@ class _RegisterScreenState extends State<RegisterScreen>
         const SizedBox(height: 20),
         const Text('Créer un compte 🩺',
             style: TextStyle(
-              fontFamily: 'Nunito', fontSize: 28,
+              fontFamily: 'Nunito',
+              fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary, height: 1.2,
+              color: AppColors.textPrimary,
+              height: 1.2,
             )),
         const SizedBox(height: 8),
         const Text(
           'Rejoignez DermaScan AI pour surveiller votre santé cutanée.',
           style: TextStyle(
-            fontFamily: 'Nunito', fontSize: 15,
-            color: AppColors.textSecondary, height: 1.5,
+            fontFamily: 'Nunito',
+            fontSize: 15,
+            color: AppColors.textSecondary,
+            height: 1.5,
           ),
         ),
       ],
@@ -200,7 +250,8 @@ class _RegisterScreenState extends State<RegisterScreen>
       children: [
         const Text('Je suis :',
             style: TextStyle(
-              fontFamily: 'Nunito', fontSize: 14,
+              fontFamily: 'Nunito',
+              fontSize: 14,
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
             )),
@@ -225,8 +276,7 @@ class _RegisterScreenState extends State<RegisterScreen>
               subtitle: 'Je suis médecin',
               icon: Icons.medical_services_rounded,
               color: const Color(0xFF7F77DD),
-              isSelected:
-                  auth.selectedRole == UserRole.dermatologue,
+              isSelected: auth.selectedRole == UserRole.dermatologue,
               onTap: () => auth.setRole(UserRole.dermatologue),
             ),
           ),
@@ -245,7 +295,8 @@ class _RegisterScreenState extends State<RegisterScreen>
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withOpacity(0.08),
-            blurRadius: 24, offset: const Offset(0, 8),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -284,6 +335,59 @@ class _RegisterScreenState extends State<RegisterScreen>
           onChanged: (_) => auth.clearError(),
         ),
         const SizedBox(height: 16),
+
+        // Date de naissance
+        GestureDetector(
+          onTap: () => _selectBirthDate(context),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Date de naissance',
+                style: TextStyle(
+                  fontFamily: 'Nunito',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                  letterSpacing: 0.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.bgWhite,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.border, width: 1.2),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.calendar_today_outlined,
+                        color: AppColors.textHint, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _birthDate == null
+                            ? '25 Déc 1990'
+                            : _birthDateFormatted(_birthDate!),
+                        style: TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                    Icon(Icons.arrow_drop_down_rounded,
+                        color: AppColors.textHint),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
         AuthTextField(
           label: 'Mot de passe',
           hint: '•••••••• (min. 8 caractères)',
@@ -296,7 +400,8 @@ class _RegisterScreenState extends State<RegisterScreen>
               auth.obscurePassword
                   ? Icons.visibility_outlined
                   : Icons.visibility_off_outlined,
-              color: AppColors.textHint, size: 20,
+              color: AppColors.textHint,
+              size: 20,
             ),
             onPressed: auth.togglePassword,
           ),
@@ -314,7 +419,8 @@ class _RegisterScreenState extends State<RegisterScreen>
               auth.obscureConfirm
                   ? Icons.visibility_outlined
                   : Icons.visibility_off_outlined,
-              color: AppColors.textHint, size: 20,
+              color: AppColors.textHint,
+              size: 20,
             ),
             onPressed: auth.toggleConfirm,
           ),
@@ -350,14 +456,16 @@ class _RegisterScreenState extends State<RegisterScreen>
     return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
       const Text('Déjà un compte ? ',
           style: TextStyle(
-            fontFamily: 'Nunito', fontSize: 14,
+            fontFamily: 'Nunito',
+            fontSize: 14,
             color: AppColors.textSecondary,
           )),
       GestureDetector(
         onTap: () => context.go('/login'),
         child: const Text('Se connecter',
             style: TextStyle(
-              fontFamily: 'Nunito', fontSize: 14,
+              fontFamily: 'Nunito',
+              fontSize: 14,
               fontWeight: FontWeight.w700,
               color: AppColors.primary,
             )),
@@ -378,9 +486,12 @@ class _RoleCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const _RoleCard({
-    required this.role, required this.label,
-    required this.subtitle, required this.icon,
-    required this.color, required this.isSelected,
+    required this.role,
+    required this.label,
+    required this.subtitle,
+    required this.icon,
+    required this.color,
+    required this.isSelected,
     required this.onTap,
   });
 
@@ -392,14 +503,10 @@ class _RoleCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected
-              ? color.withOpacity(0.08)
-              : AppColors.bgWhite,
+          color: isSelected ? color.withOpacity(0.08) : AppColors.bgWhite,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected
-                ? color.withOpacity(0.5)
-                : AppColors.border,
+            color: isSelected ? color.withOpacity(0.5) : AppColors.border,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
@@ -407,42 +514,40 @@ class _RoleCard extends StatelessWidget {
               color: isSelected
                   ? color.withOpacity(0.12)
                   : Colors.black.withOpacity(0.03),
-              blurRadius: 12, offset: const Offset(0, 4),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(children: [
           Container(
-            width: 44, height: 44,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              color: isSelected
-                  ? color.withOpacity(0.15)
-                  : AppColors.bgSoft,
+              color: isSelected ? color.withOpacity(0.15) : AppColors.bgSoft,
               shape: BoxShape.circle,
             ),
             child: Icon(icon,
-                color: isSelected ? color : AppColors.textHint,
-                size: 22),
+                color: isSelected ? color : AppColors.textHint, size: 22),
           ),
           const SizedBox(height: 8),
           Text(label,
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 14,
+                fontFamily: 'Nunito',
+                fontSize: 14,
                 fontWeight: FontWeight.w800,
                 color: isSelected ? color : AppColors.textPrimary,
               )),
           Text(subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 11,
-                color: isSelected
-                    ? color.withOpacity(0.8)
-                    : AppColors.textHint,
+                fontFamily: 'Nunito',
+                fontSize: 11,
+                color: isSelected ? color.withOpacity(0.8) : AppColors.textHint,
               )),
           if (isSelected) ...[
             const SizedBox(height: 6),
-            Icon(Icons.check_circle_rounded,
-                color: color, size: 16),
+            Icon(Icons.check_circle_rounded, color: color, size: 16),
           ],
         ]),
       ),
@@ -457,8 +562,10 @@ class _DermatoSection extends StatelessWidget {
   final VoidCallback onChanged;
 
   const _DermatoSection({
-    required this.rppsCtrl, required this.specialityCtrl,
-    required this.cabinetCtrl, required this.onChanged,
+    required this.rppsCtrl,
+    required this.specialityCtrl,
+    required this.cabinetCtrl,
+    required this.onChanged,
   });
 
   @override
@@ -467,13 +574,12 @@ class _DermatoSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 14, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: const Color(0xFF7F77DD).withOpacity(0.08),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-                color: const Color(0xFF7F77DD).withOpacity(0.25)),
+            border:
+                Border.all(color: const Color(0xFF7F77DD).withOpacity(0.25)),
           ),
           child: const Row(children: [
             Icon(Icons.info_outline_rounded,
@@ -483,7 +589,8 @@ class _DermatoSection extends StatelessWidget {
               child: Text(
                 'Informations professionnelles requises pour la vérification de votre compte.',
                 style: TextStyle(
-                  fontFamily: 'Nunito', fontSize: 12,
+                  fontFamily: 'Nunito',
+                  fontSize: 12,
                   color: Color(0xFF534AB7),
                 ),
               ),
@@ -530,27 +637,37 @@ class _PasswordStrength extends StatelessWidget {
     if (password.length >= 8) s++;
     if (password.contains(RegExp(r'[A-Z]'))) s++;
     if (password.contains(RegExp(r'[0-9]'))) s++;
-    if (password.contains(RegExp(r'[!@#\$&*~]'))) s++;
+    if (password.contains(RegExp(r'[!@#$&*~]'))) s++;
     return s;
   }
 
   Color get _color {
     switch (_strength) {
-      case 1: return AppColors.riskHigh;
-      case 2: return AppColors.riskMedium;
-      case 3: return AppColors.riskLow;
-      case 4: return AppColors.accent;
-      default: return AppColors.border;
+      case 1:
+        return AppColors.riskHigh;
+      case 2:
+        return AppColors.riskMedium;
+      case 3:
+        return AppColors.riskLow;
+      case 4:
+        return AppColors.accent;
+      default:
+        return AppColors.border;
     }
   }
 
   String get _label {
     switch (_strength) {
-      case 1: return 'Faible';
-      case 2: return 'Moyen';
-      case 3: return 'Fort';
-      case 4: return 'Très fort';
-      default: return '';
+      case 1:
+        return 'Faible';
+      case 2:
+        return 'Moyen';
+      case 3:
+        return 'Fort';
+      case 4:
+        return 'Très fort';
+      default:
+        return '';
     }
   }
 
@@ -559,7 +676,8 @@ class _PasswordStrength extends StatelessWidget {
     if (password.isEmpty) return const SizedBox.shrink();
     return Row(children: [
       Expanded(
-        child: Row(children: List.generate(4, (i) {
+        child: Row(
+            children: List.generate(4, (i) {
           return Expanded(
             child: Container(
               margin: const EdgeInsets.only(right: 4),
@@ -575,8 +693,10 @@ class _PasswordStrength extends StatelessWidget {
       const SizedBox(width: 12),
       Text(_label,
           style: TextStyle(
-            fontFamily: 'Nunito', fontSize: 12,
-            fontWeight: FontWeight.w600, color: _color,
+            fontFamily: 'Nunito',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: _color,
           )),
     ]);
   }
@@ -590,38 +710,35 @@ class _PolicyCheckbox extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: auth.togglePolicy,
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: 22, height: 22,
+          width: 22,
+          height: 22,
           decoration: BoxDecoration(
-            color: auth.acceptPolicy
-                ? AppColors.primary
-                : AppColors.bgWhite,
+            color: auth.acceptPolicy ? AppColors.primary : AppColors.bgWhite,
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: auth.acceptPolicy
-                  ? AppColors.primary
-                  : AppColors.border,
+              color: auth.acceptPolicy ? AppColors.primary : AppColors.border,
               width: 1.5,
             ),
           ),
           child: auth.acceptPolicy
-              ? const Icon(Icons.check_rounded,
-                  color: Colors.white, size: 14)
+              ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
               : null,
         ),
         const SizedBox(width: 12),
         Expanded(
           child: RichText(
-            text: const TextSpan(
+            text: TextSpan(
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 13,
-                color: AppColors.textSecondary, height: 1.5,
+                fontFamily: 'Nunito',
+                fontSize: 13,
+                color: AppColors.textSecondary,
+                height: 1.5,
               ),
               children: [
-                TextSpan(text: 'J\'accepte la '),
+                const TextSpan(text: "J'accepte la "),
                 TextSpan(
                   text: 'politique de confidentialité',
                   style: TextStyle(
@@ -629,7 +746,7 @@ class _PolicyCheckbox extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                TextSpan(text: ' et les '),
+                const TextSpan(text: ' et les '),
                 TextSpan(
                   text: 'conditions d\'utilisation',
                   style: TextStyle(
@@ -637,7 +754,7 @@ class _PolicyCheckbox extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                TextSpan(text: ' de DermaScan AI.'),
+                const TextSpan(text: ' de DermaScan AI.'),
               ],
             ),
           ),
@@ -652,7 +769,8 @@ class _RegisterButton extends StatelessWidget {
   final bool isLoading;
   final UserRole role;
   const _RegisterButton({
-    required this.onTap, required this.isLoading,
+    required this.onTap,
+    required this.isLoading,
     required this.role,
   });
 
@@ -682,14 +800,16 @@ class _RegisterButton extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.30),
-              blurRadius: 16, offset: const Offset(0, 6),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
         child: Center(
           child: isLoading
               ? const SizedBox(
-                  width: 22, height: 22,
+                  width: 22,
+                  height: 22,
                   child: CircularProgressIndicator(
                       color: Colors.white, strokeWidth: 2.2))
               : Row(
@@ -699,7 +819,8 @@ class _RegisterButton extends StatelessWidget {
                       role == UserRole.dermatologue
                           ? Icons.medical_services_rounded
                           : Icons.person_add_rounded,
-                      color: Colors.white, size: 20,
+                      color: Colors.white,
+                      size: 20,
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -720,8 +841,7 @@ class _SecurityBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 14, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: AppColors.bgSoft,
         borderRadius: BorderRadius.circular(12),
@@ -730,12 +850,12 @@ class _SecurityBadge extends StatelessWidget {
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.shield_outlined,
-              color: AppColors.primary, size: 16),
+          Icon(Icons.shield_outlined, color: AppColors.primary, size: 16),
           SizedBox(width: 8),
           Text('Données chiffrées · Conformité RGPD',
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 12,
+                fontFamily: 'Nunito',
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textSecondary,
               )),
@@ -752,13 +872,11 @@ class _ErrorBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-          horizontal: 14, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.riskHigh.withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-            color: AppColors.riskHigh.withOpacity(0.25)),
+        border: Border.all(color: AppColors.riskHigh.withOpacity(0.25)),
       ),
       child: Row(children: [
         const Icon(Icons.error_outline_rounded,
@@ -767,7 +885,8 @@ class _ErrorBanner extends StatelessWidget {
         Expanded(
           child: Text(message,
               style: const TextStyle(
-                fontFamily: 'Nunito', fontSize: 13,
+                fontFamily: 'Nunito',
+                fontSize: 13,
                 color: AppColors.riskHigh,
                 fontWeight: FontWeight.w500,
               )),

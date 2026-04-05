@@ -40,6 +40,8 @@ class PatientDiagnostic {
   final Color riskColor;
   final String riskLabel;
   final DateTime date;
+  final String imageUrl;
+  final List<String> abcdeFlags;
   DiagnosticStatus status;
   String? doctorOpinion;
 
@@ -52,6 +54,8 @@ class PatientDiagnostic {
     required this.riskColor,
     required this.riskLabel,
     required this.date,
+    required this.imageUrl,
+    required this.abcdeFlags,
     this.status = DiagnosticStatus.pending,
     this.doctorOpinion,
   });
@@ -68,11 +72,31 @@ class DoctorDashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Rendez-vous ───────────────────────────────────────────
   final List<PatientAppointment> appointments = [];
-
-  // ── Diagnostics en attente d'avis ─────────────────────────
   final List<PatientDiagnostic> diagnostics = [];
+
+  static String _initialsFromName(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    if (name.isNotEmpty) return name[0].toUpperCase();
+    return 'P';
+  }
+
+  static Color _riskColorFromConfidence(double? c) {
+    final p = c ?? 0;
+    if (p >= 0.6) return AppColors.riskHigh;
+    if (p >= 0.35) return AppColors.riskMedium;
+    return AppColors.riskLow;
+  }
+
+  static String _riskLabelFromConfidence(double? c) {
+    final p = c ?? 0;
+    if (p >= 0.6) return 'Élevé';
+    if (p >= 0.35) return 'Modéré';
+    return 'Faible';
+  }
 
   Future<void> syncFromBackend(String? accessToken) async {
     if (accessToken == null || accessToken.isEmpty) return;
@@ -90,10 +114,12 @@ class DoctorDashboardProvider extends ChangeNotifier {
             final dt = DateTime.tryParse(m['date_rdv']?.toString() ?? '') ??
                 DateTime.now();
             final status = _fromStatus(m['status']?.toString() ?? 'pending');
+            final pname =
+                m['patient_name']?.toString() ?? 'Patient';
             return PatientAppointment(
               id: id,
-              patientName: 'Patient #${m['patient_id'] ?? '?'}',
-              patientInitials: 'P',
+              patientName: pname,
+              patientInitials: _initialsFromName(pname),
               reason: 'Consultation dermatologique',
               dateTime: dt,
               riskLevel: '—',
@@ -103,26 +129,59 @@ class DoctorDashboardProvider extends ChangeNotifier {
           }),
         );
 
-      final avis = await api.getJsonList('/avis/doctor');
-      diagnostics
-        ..clear()
-        ..addAll(
-          avis.map((raw) {
-            final m = (raw as Map).cast<String, dynamic>();
-            return PatientDiagnostic(
-              id: m['image_id']?.toString() ?? m['id']?.toString() ?? '',
-              patientName: 'Patient',
-              patientInitials: 'P',
-              zone: 'Image #${m['image_id'] ?? '?'}',
-              riskPercent: 0.0,
-              riskColor: AppColors.riskMedium,
-              riskLabel: m['diagnostic']?.toString() ?? 'Avis',
-              date: DateTime.now(),
-              status: DiagnosticStatus.reviewed,
-              doctorOpinion: m['commentaire']?.toString(),
-            );
-          }),
+      final pendingResp = await api.getJson('/image/doctor/pending');
+      final pendingList = (pendingResp['images'] as List?) ?? const [];
+
+      final avisList = await api.getJsonList('/avis/doctor');
+
+      diagnostics.clear();
+
+      for (final raw in pendingList) {
+        final m = (raw as Map).cast<String, dynamic>();
+        final conf = (m['confidence'] as num?)?.toDouble();
+        final p = (conf ?? 0).clamp(0.0, 1.0);
+        final pname = m['patient_name']?.toString() ?? 'Patient';
+        final created = DateTime.tryParse(m['created_at']?.toString() ?? '');
+        diagnostics.add(
+          PatientDiagnostic(
+            id: m['id']?.toString() ?? '',
+            patientName: pname,
+            patientInitials: _initialsFromName(pname),
+            zone: m['zone']?.toString() ?? m['result']?.toString() ?? 'Lésion',
+            riskPercent: p,
+            riskColor: _riskColorFromConfidence(conf),
+            riskLabel: m['result']?.toString() ?? _riskLabelFromConfidence(conf),
+            date: created ?? DateTime.now(),
+            imageUrl: m['image_url']?.toString() ?? '',
+            abcdeFlags: const [],
+            status: DiagnosticStatus.pending,
+          ),
         );
+      }
+
+      for (final raw in avisList) {
+        final m = (raw as Map).cast<String, dynamic>();
+        final conf = (m['confidence'] as num?)?.toDouble();
+        final p = (conf ?? 0).clamp(0.0, 1.0);
+        final pname = m['patient_name']?.toString() ?? 'Patient';
+        final obs = DateTime.tryParse(m['observation_date']?.toString() ?? '');
+        diagnostics.add(
+          PatientDiagnostic(
+            id: m['image_id']?.toString() ?? '',
+            patientName: pname,
+            patientInitials: _initialsFromName(pname),
+            zone: m['diagnostic']?.toString() ?? 'Lésion',
+            riskPercent: p,
+            riskColor: _riskColorFromConfidence(conf),
+            riskLabel: m['result']?.toString() ?? _riskLabelFromConfidence(conf),
+            date: obs ?? DateTime.now(),
+            imageUrl: m['image_url']?.toString() ?? '',
+            abcdeFlags: const [],
+            status: DiagnosticStatus.reviewed,
+            doctorOpinion: m['commentaire']?.toString(),
+          ),
+        );
+      }
 
       notifyListeners();
     } catch (_) {
@@ -130,7 +189,6 @@ class DoctorDashboardProvider extends ChangeNotifier {
     }
   }
 
-  // ── Statistiques ──────────────────────────────────────────
   int get pendingAppointments =>
       appointments.where((a) => a.status == AppointmentStatus.pending).length;
 
@@ -147,7 +205,6 @@ class DoctorDashboardProvider extends ChangeNotifier {
   int get pendingDiagnostics =>
       diagnostics.where((d) => d.status == DiagnosticStatus.pending).length;
 
-  // ── Actions RDV ───────────────────────────────────────────
   Future<void> acceptAppointment(String id) async {
     final appt = appointments.firstWhere((a) => a.id == id);
     appt.status = AppointmentStatus.accepted;
@@ -172,23 +229,26 @@ class DoctorDashboardProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Actions diagnostic ────────────────────────────────────
-  Future<void> submitOpinion(String id, String opinion) async {
-    final diag = diagnostics.firstWhere((d) => d.id == id);
+  Future<void> submitOpinion(String imageId, String opinion) async {
+    final diag = diagnostics.firstWhere((d) => d.id == imageId);
     diag.doctorOpinion = opinion;
     diag.status = DiagnosticStatus.reviewed;
     if (_accessToken != null) {
       try {
         final api = ApiClient(accessToken: _accessToken);
-        final encoded = Uri.encodeQueryComponent(opinion);
-        await api
-            .postEmpty('/avis/$id?commentaire=$encoded&diagnostic=reviewed');
+        await api.postJson(
+          '/avis/$imageId',
+          body: {
+            'commentaire': opinion,
+            'diagnostic': 'Avis dermatologue',
+            'rating': 5,
+          },
+        );
       } catch (_) {}
     }
-    notifyListeners();
+    await syncFromBackend(_accessToken);
   }
 
-  // ── Formatage date ────────────────────────────────────────
   String formatDateTime(DateTime dt) {
     final now = DateTime.now();
     final diff = dt.difference(now);

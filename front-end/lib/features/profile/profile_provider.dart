@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/api/api_client.dart';
 import '../../core/models/user_model.dart';
+
+const _kBirthDateMs = 'profile_birth_date_ms';
 
 class ProfileProvider extends ChangeNotifier {
   // Infos personnelles
   String fullName = 'Thomas Bouchard';
   String email = 'thomas.bouchard@email.com';
   String phone = '+33 6 12 34 56 78';
-  String birthDate = '15/03/1990';
+  DateTime? birthDate;
   String bloodType = 'A+';
 
   // Sécurité
-  bool biometricEnabled = true;
   bool notificationsEnabled = true;
   bool dataEncrypted = true;
   bool twoFactorEnabled = false;
@@ -38,15 +40,32 @@ class ProfileProvider extends ChangeNotifier {
   Future<void> syncFromBackend(String? accessToken) async {
     if (accessToken == null || accessToken.isEmpty) return;
     _accessToken = accessToken;
+    await _loadBirthDateFromPrefs();
+    notifyListeners();
     try {
       final api = ApiClient(accessToken: _accessToken);
       final profile = await api.getJson('/profile/');
 
       fullName = profile['nom']?.toString() ?? fullName;
       email = profile['email']?.toString() ?? email;
+      phone = profile['telephone']?.toString() ?? phone;
 
       final roleStr = profile['role']?.toString() ?? 'patient';
       _role = roleStr == 'doctor' ? UserRole.dermatologue : UserRole.patient;
+
+      if (_role == UserRole.patient) {
+        final pi = profile['patient_info'];
+        if (pi is Map) {
+          final ds = pi['date_naissance']?.toString();
+          if (ds != null && ds.isNotEmpty) {
+            final parsed = DateTime.tryParse(ds);
+            if (parsed != null) {
+              birthDate = DateTime(parsed.year, parsed.month, parsed.day);
+              await _saveBirthDateToPrefs();
+            }
+          }
+        }
+      }
 
       if (_role == UserRole.patient) {
         final list = await api.getJsonList('/reservations/my');
@@ -91,11 +110,6 @@ class ProfileProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleBiometric() {
-    biometricEnabled = !biometricEnabled;
-    notifyListeners();
-  }
-
   void toggleNotifications() {
     notificationsEnabled = !notificationsEnabled;
     notifyListeners();
@@ -109,6 +123,57 @@ class ProfileProvider extends ChangeNotifier {
   void toggleAutoBackup() {
     autoBackup = !autoBackup;
     notifyListeners();
+  }
+
+  Future<void> _loadBirthDateFromPrefs() async {
+    final p = await SharedPreferences.getInstance();
+    final ms = p.getInt(_kBirthDateMs);
+    if (ms != null) {
+      birthDate = DateTime.fromMillisecondsSinceEpoch(ms);
+    }
+  }
+
+  Future<void> _saveBirthDateToPrefs() async {
+    final d = birthDate;
+    if (d == null) return;
+    final p = await SharedPreferences.getInstance();
+    await p.setInt(_kBirthDateMs, d.millisecondsSinceEpoch);
+  }
+
+  void setBirthDate(DateTime date) {
+    birthDate = date;
+    notifyListeners();
+    _saveBirthDateToPrefs();
+  }
+
+  String get birthDateFormatted {
+    if (birthDate == null) return 'Non renseignée';
+    const months = [
+      'janvier',
+      'février',
+      'mars',
+      'avril',
+      'mai',
+      'juin',
+      'juillet',
+      'août',
+      'septembre',
+      'octobre',
+      'novembre',
+      'décembre'
+    ];
+    return '${birthDate!.day} ${months[birthDate!.month - 1]} ${birthDate!.year}';
+  }
+
+  int? get age {
+    if (birthDate == null) return null;
+    final now = DateTime.now();
+    int age = now.year - birthDate!.year;
+    if (now.month < birthDate!.month ||
+        (now.month == birthDate!.month && now.day < birthDate!.day)) {
+      age--;
+    }
+    return age;
   }
 
   Future<void> saveProfile({
@@ -125,13 +190,16 @@ class ProfileProvider extends ChangeNotifier {
     if (_accessToken == null || _accessToken!.isEmpty) return;
     try {
       final api = ApiClient(accessToken: _accessToken);
-      await api.putJson(
-        '/profile/update',
-        body: {
-          'nom': name,
-          'email': email,
-        },
-      );
+      final body = <String, dynamic>{
+        'nom': name,
+        'email': email,
+        'telephone': phone,
+      };
+      if (_role == UserRole.patient && birthDate != null) {
+        body['date_naissance'] =
+            '${birthDate!.year}-${birthDate!.month.toString().padLeft(2, '0')}-${birthDate!.day.toString().padLeft(2, '0')}';
+      }
+      await api.putJson('/profile/update', body: body);
     } catch (_) {
       // keep optimistic UI
     }

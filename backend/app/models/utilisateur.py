@@ -11,6 +11,7 @@ class Utilisateur(Base):
     email = Column(String, unique=True, index=True)
     password_hash = Column(String)
     role = Column(String)
+    telephone = Column(String, nullable=True)
 
     patient_profile = relationship(
         "Patient", back_populates="user", uselist=False

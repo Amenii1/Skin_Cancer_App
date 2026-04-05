@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +27,9 @@ import 'features/booking/booking_screen.dart';
 import 'features/booking/booking_provider.dart';
 import 'features/doctor/doctor_dashboard_screen.dart';
 import 'features/doctor/doctor_dashboard_provider.dart';
+import 'features/doctor/doctor_patients_screen.dart';
+import 'features/doctor/doctor_agenda_screen.dart';
+import 'features/doctor/doctor_profile_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,32 +44,63 @@ void main() {
 final GoRouter _router = GoRouter(
   initialLocation: '/',
   routes: [
-    GoRoute(path: '/',
+    GoRoute(
+        path: '/',
         pageBuilder: (_, __) => const NoTransitionPage(child: SplashScreen())),
-    GoRoute(path: '/onboarding',
-        pageBuilder: (_, __) => const NoTransitionPage(child: OnboardingScreen())),
-    GoRoute(path: '/login',
+    GoRoute(
+        path: '/onboarding',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: OnboardingScreen())),
+    GoRoute(
+        path: '/login',
         pageBuilder: (_, __) => const NoTransitionPage(child: LoginScreen())),
-    GoRoute(path: '/register',
-        pageBuilder: (_, __) => const NoTransitionPage(child: RegisterScreen())),
-    GoRoute(path: '/dashboard',
-        pageBuilder: (_, __) => const NoTransitionPage(child: DashboardScreen())),
-    GoRoute(path: '/camera',
+    GoRoute(
+        path: '/register',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: RegisterScreen())),
+    GoRoute(
+        path: '/dashboard',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: DashboardScreen())),
+    GoRoute(
+        path: '/camera',
         pageBuilder: (_, __) => const NoTransitionPage(child: CameraScreen())),
-    GoRoute(path: '/result',
+    GoRoute(
+        path: '/result',
         pageBuilder: (_, __) => const NoTransitionPage(child: ResultScreen())),
-    GoRoute(path: '/bodymap',
+    GoRoute(
+        path: '/bodymap',
         pageBuilder: (_, __) => const NoTransitionPage(child: BodyMapScreen())),
-    GoRoute(path: '/tracking',
-        pageBuilder: (_, __) => const NoTransitionPage(child: TrackingScreen())),
-    GoRoute(path: '/dermatologist',
-        pageBuilder: (_, __) => const NoTransitionPage(child: DermatologistScreen())),
-    GoRoute(path: '/profile',
+    GoRoute(
+        path: '/tracking',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: TrackingScreen())),
+    GoRoute(
+        path: '/dermatologist',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: DermatologistScreen())),
+    GoRoute(
+        path: '/profile',
         pageBuilder: (_, __) => const NoTransitionPage(child: ProfileScreen())),
-    GoRoute(path: '/booking',
+    GoRoute(
+        path: '/booking',
         pageBuilder: (_, __) => const NoTransitionPage(child: BookingScreen())),
-    GoRoute(path: '/doctor-dashboard',
-        pageBuilder: (_, __) => const NoTransitionPage(child: DoctorDashboardScreen())),
+    GoRoute(
+        path: '/doctor-dashboard',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: DoctorDashboardScreen())),
+    GoRoute(
+        path: '/doctor-patients',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: DoctorPatientsScreen())),
+    GoRoute(
+        path: '/doctor-agenda',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: DoctorAgendaScreen())),
+    GoRoute(
+        path: '/doctor-profile',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: DoctorProfileScreen())),
   ],
 );
 
@@ -92,6 +127,16 @@ class DermaScanApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         routerConfig: _router,
+        locale: const Locale('fr', 'FR'),
+        supportedLocales: const [
+          Locale('fr', 'FR'),
+          Locale('en', 'US'),
+        ],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
       ),
     );
   }

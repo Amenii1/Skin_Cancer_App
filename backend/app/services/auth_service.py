@@ -1,16 +1,19 @@
-from sqlalchemy.orm import Session
+from datetime import date
+
 from fastapi import HTTPException
-from app.models.utilisateur import Utilisateur
+from sqlalchemy.orm import Session
+
 from app.core.security import hash_password, verify_password, create_token
+from app.models.utilisateur import Utilisateur
 from app.models.patient import Patient
 from app.models.dermatologue import Dermatologue
+
 
 def register(db: Session, user):
 
     existing = db.query(Utilisateur).filter(Utilisateur.email == user.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already exists")
-    # ✅ password validation
     if len(user.password) < 6:
         raise HTTPException(status_code=400, detail="Password too short")
 
@@ -18,20 +21,34 @@ def register(db: Session, user):
         nom=user.nom,
         email=user.email,
         password_hash=hash_password(user.password),
-        role=user.role
+        role=user.role,
+        telephone=user.telephone,
     )
 
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    # 🔥 هنا الفرق
     if user.role == "patient":
-        patient = Patient(user_id=new_user.id)
+        dob = None
+        if user.date_naissance:
+            try:
+                dob = date.fromisoformat(user.date_naissance.strip())
+            except ValueError:
+                raise HTTPException(
+                    status_code=400, detail="date_naissance must be YYYY-MM-DD"
+                )
+        patient = Patient(user_id=new_user.id, date_naissance=dob)
         db.add(patient)
 
     elif user.role == "doctor":
-        doctor = Dermatologue(user_id=new_user.id)
+        doctor = Dermatologue(
+            user_id=new_user.id,
+            specialite=user.specialite,
+            adresse_cabinet=user.adresse_cabinet,
+            ville=user.ville,
+            numero_rpps=user.numero_rpps,
+        )
         db.add(doctor)
 
     db.commit()
@@ -39,7 +56,7 @@ def register(db: Session, user):
     return {
         "id": new_user.id,
         "email": new_user.email,
-        "role": new_user.role
+        "role": new_user.role,
     }
 
 
@@ -52,12 +69,14 @@ def login(db: Session, email, password):
     if not verify_password(password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid password")
 
-    token = create_token({
-        "sub": user.email,
-        "role": user.role
-    })
+    token = create_token(
+        {
+            "sub": user.email,
+            "role": user.role,
+        }
+    )
 
     return {
         "access_token": token,
-        "token_type": "bearer"
+        "token_type": "bearer",
     }

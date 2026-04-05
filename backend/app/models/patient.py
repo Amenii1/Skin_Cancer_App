@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Float
+from sqlalchemy import Column, Integer, String, ForeignKey, Float, Date
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -13,5 +13,6 @@ class Patient(Base):
     ville = Column(String, nullable=True)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
+    date_naissance = Column(Date, nullable=True)
 
     user = relationship("Utilisateur", back_populates="patient_profile")

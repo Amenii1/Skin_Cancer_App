@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException, Request
-from sqlalchemy import case
+from sqlalchemy import case, or_
 from sqlalchemy.orm import Session
 import base64
 import os
@@ -9,6 +9,9 @@ from uuid import uuid4
 
 from app.core.dependencies import get_current_user, get_db
 from app.models.image import Image
+from app.models.utilisateur import Utilisateur
+from app.models.dermatologue import Dermatologue
+from app.models.avis import Avis
 
 router = APIRouter(prefix="/image", tags=["Image"])
 
@@ -113,3 +116,57 @@ def list_my_images(
             for r in rows
         ]
     }
+
+
+@router.get("/doctor/pending")
+def list_pending_opinions_for_doctor(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """Images patients analysées (IA) sans avis du médecin connecté."""
+    if current_user.role != "doctor":
+        raise HTTPException(status_code=403, detail="Only doctors")
+
+    doctor = db.query(Dermatologue).filter(Dermatologue.user_id == current_user.id).first()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor profile not found")
+
+    reviewed_ids = [
+        row[0]
+        for row in db.query(Avis.image_id)
+        .filter(Avis.dermatologue_id == doctor.id)
+        .all()
+    ]
+
+    q = (
+        db.query(Image)
+        .join(Utilisateur, Image.user_id == Utilisateur.id)
+        .filter(Utilisateur.role == "patient")
+        .filter(or_(Image.confidence.isnot(None), Image.result.isnot(None)))
+    )
+    if reviewed_ids:
+        q = q.filter(~Image.id.in_(reviewed_ids))
+
+    rows = q.order_by(Image.created_at.desc()).all()
+
+    out = []
+    for r in rows:
+        user = db.query(Utilisateur).filter(Utilisateur.id == r.user_id).first()
+        out.append(
+            {
+                "id": r.id,
+                "patient_name": user.nom if user else None,
+                "patient_email": user.email if user else None,
+                "observation_date": r.observation_date.isoformat()
+                if r.observation_date
+                else None,
+                "created_at": r.created_at.isoformat() if r.created_at else None,
+                "result": r.result,
+                "confidence": r.confidence,
+                "path": r.path,
+                "image_url": f"{request.base_url}uploads/{os.path.basename(r.path)}",
+                "zone": r.result or "Lésion",
+            }
+        )
+    return {"images": out}

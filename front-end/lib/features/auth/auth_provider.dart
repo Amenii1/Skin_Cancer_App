@@ -29,7 +29,6 @@ class AuthProvider extends ChangeNotifier {
   bool get obscurePassword => _obscurePassword;
   bool get obscureConfirm => _obscureConfirm;
   bool get acceptPolicy => _acceptPolicy;
-  bool get biometricEnabled => _biometricEnabled;
   UserRole get selectedRole => _selectedRole;
   bool get isLoading => _status == AuthStatus.loading;
   bool get isLoggedIn => _currentUser != null;
@@ -49,11 +48,6 @@ class AuthProvider extends ChangeNotifier {
 
   void togglePolicy() {
     _acceptPolicy = !_acceptPolicy;
-    notifyListeners();
-  }
-
-  void toggleBiometric() {
-    _biometricEnabled = !_biometricEnabled;
     notifyListeners();
   }
 
@@ -95,15 +89,34 @@ class AuthProvider extends ChangeNotifier {
     final speciality = patientOrDoctorInfo?['specialite']?.toString();
     final cabinetAddress = patientOrDoctorInfo?['adresse']?.toString();
 
+    final phone = profileResp['telephone']?.toString() ?? '';
+
+    DateTime? dateOfBirth;
+    if (roleStr == 'patient' && patientOrDoctorInfo is Map) {
+      final ds = patientOrDoctorInfo['date_naissance']?.toString();
+      if (ds != null && ds.isNotEmpty) {
+        final parsed = DateTime.tryParse(ds);
+        if (parsed != null) {
+          dateOfBirth = DateTime(parsed.year, parsed.month, parsed.day);
+        }
+      }
+    }
+
+    String? rpps;
+    if (roleStr == 'doctor' && patientOrDoctorInfo is Map) {
+      rpps = patientOrDoctorInfo['numero_rpps']?.toString();
+    }
+
     _currentUser = UserModel(
       id: id.isEmpty ? 'usr_${DateTime.now().millisecondsSinceEpoch}' : id,
       fullName: nom.isEmpty ? 'Utilisateur' : nom,
       email: respEmail,
-      phone: '',
+      phone: phone,
       role: role,
       speciality: speciality,
       cabinetAddress: cabinetAddress,
-      rppsNumber: null,
+      rppsNumber: rpps,
+      dateOfBirth: dateOfBirth,
       isVerified: true,
     );
   }
@@ -204,6 +217,7 @@ class AuthProvider extends ChangeNotifier {
     required String password,
     required String confirmPassword,
     required String phone,
+    DateTime? dateOfBirth,
     String? speciality,
     String? rppsNumber,
     String? cabinetAddress,
@@ -258,6 +272,16 @@ class AuthProvider extends ChangeNotifier {
         return false;
       }
     }
+    // Validate date of birth (optional, but reasonable age if provided)
+    if (dateOfBirth != null) {
+      final age = DateTime.now().difference(dateOfBirth!).inDays ~/ 365;
+      if (age < 13 || age > 120) {
+        _errorMessage = 'Âge non réaliste (13-120 ans).';
+        _status = AuthStatus.error;
+        notifyListeners();
+        return false;
+      }
+    }
 
     _status = AuthStatus.loading;
     _errorMessage = null;
@@ -268,15 +292,31 @@ class AuthProvider extends ChangeNotifier {
           _selectedRole == UserRole.patient ? 'patient' : 'doctor';
 
       final api = ApiClient();
-      await api.postJson(
-        '/auth/register',
-        body: {
-          'nom': fullName,
-          'email': email,
-          'password': password,
-          'role': backendRole,
-        },
-      );
+      final body = <String, dynamic>{
+        'nom': fullName,
+        'email': email,
+        'password': password,
+        'role': backendRole,
+      };
+      if (phone.trim().isNotEmpty) {
+        body['telephone'] = phone.trim();
+      }
+      if (_selectedRole == UserRole.patient && dateOfBirth != null) {
+        body['date_naissance'] =
+            '${dateOfBirth!.year}-${dateOfBirth!.month.toString().padLeft(2, '0')}-${dateOfBirth!.day.toString().padLeft(2, '0')}';
+      }
+      if (_selectedRole == UserRole.dermatologue) {
+        if (speciality != null && speciality!.trim().isNotEmpty) {
+          body['specialite'] = speciality!.trim();
+        }
+        if (cabinetAddress != null && cabinetAddress!.trim().isNotEmpty) {
+          body['adresse_cabinet'] = cabinetAddress!.trim();
+        }
+        if (rppsNumber != null && rppsNumber!.trim().isNotEmpty) {
+          body['numero_rpps'] = rppsNumber!.trim();
+        }
+      }
+      await api.postJson('/auth/register', body: body);
 
       // Connexion automatique après création de compte.
       return await login(email: email, password: password);
