@@ -76,6 +76,18 @@ class ApiClient {
     return _handleResponse(res);
   }
 
+  Future<Map<String, dynamic>> deleteJson(String path) async {
+    final uri = _uri(path);
+    final res = await http
+        .delete(
+          uri,
+          headers: _defaultHeaders(),
+        )
+        .timeout(const Duration(seconds: 30));
+
+    return _handleResponse(res);
+  }
+
   Future<Map<String, dynamic>> postEmpty(
     String path, {
     Map<String, String>? extraHeaders,

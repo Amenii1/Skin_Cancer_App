@@ -40,15 +40,16 @@ class RiskSummaryCard extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 5),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                 decoration: BoxDecoration(
                   color: prov.globalRiskColor(context).withOpacity(0.12),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(children: [
                   Container(
-                    width: 7, height: 7,
+                    width: 7,
+                    height: 7,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: prov.globalRiskColor(context),
@@ -84,7 +85,7 @@ class RiskSummaryCard extends StatelessWidget {
               color: AppColors.riskMedium,
             ),
             const SizedBox(width: 12),
-            _StatBox(
+            const _StatBox(
               value: '1',
               label: 'Alerte\nactive',
               color: AppColors.riskHigh,
@@ -177,7 +178,8 @@ class _LesionRow extends StatelessWidget {
       child: Row(children: [
         // Avatar lésion
         Container(
-          width: 36, height: 36,
+          width: 36,
+          height: 36,
           decoration: BoxDecoration(
             color: color.withOpacity(0.15),
             borderRadius: BorderRadius.circular(10),

@@ -26,8 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.initState();
     _animCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
-    _fadeAnim =
-        CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _animCtrl.forward();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -54,8 +53,8 @@ class _ProfileScreenState extends State<ProfileScreen>
   Future<void> _pickBirthDate(
       BuildContext context, ProfileProvider prov) async {
     final now = DateTime.now();
-    final initial = prov.birthDate ??
-        DateTime(now.year - 25, now.month, now.day);
+    final initial =
+        prov.birthDate ?? DateTime(now.year - 25, now.month, now.day);
 
     final picked = await showDatePicker(
       context: context,
@@ -105,8 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         opacity: _fadeAnim,
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(
-                child: _buildHeader(context, prov)),
+            SliverToBoxAdapter(child: _buildHeader(context, prov)),
             SliverPadding(
               padding: const EdgeInsets.all(20),
               sliver: SliverList(
@@ -137,7 +135,9 @@ class _ProfileScreenState extends State<ProfileScreen>
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
-        left: 20, right: 20, bottom: 24,
+        left: 20,
+        right: 20,
+        bottom: 24,
       ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -152,14 +152,14 @@ class _ProfileScreenState extends State<ProfileScreen>
           GestureDetector(
             onTap: () => context.go('/dashboard'),
             child: Container(
-              width: 42, height: 42,
+              width: 42,
+              height: 42,
               decoration: BoxDecoration(
                 color: AppColors.bgWhite,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.border),
               ),
-              child: const Icon(
-                  Icons.arrow_back_ios_new_rounded,
+              child: const Icon(Icons.arrow_back_ios_new_rounded,
                   color: AppColors.textPrimary, size: 18),
             ),
           ),
@@ -167,7 +167,8 @@ class _ProfileScreenState extends State<ProfileScreen>
             child: Center(
               child: Text('Mon profil',
                   style: TextStyle(
-                    fontFamily: 'Nunito', fontSize: 18,
+                    fontFamily: 'Nunito',
+                    fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
                   )),
@@ -182,8 +183,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     )
                 : prov.toggleEdit,
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
                 color: prov.editMode
                     ? AppColors.riskLow.withOpacity(0.12)
@@ -198,11 +198,10 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: Text(
                 prov.editMode ? 'Sauvegarder' : 'Modifier',
                 style: TextStyle(
-                  fontFamily: 'Nunito', fontSize: 12,
+                  fontFamily: 'Nunito',
+                  fontSize: 12,
                   fontWeight: FontWeight.w700,
-                  color: prov.editMode
-                      ? AppColors.riskLow
-                      : AppColors.primary,
+                  color: prov.editMode ? AppColors.riskLow : AppColors.primary,
                 ),
               ),
             ),
@@ -213,7 +212,8 @@ class _ProfileScreenState extends State<ProfileScreen>
         // Avatar
         Stack(alignment: Alignment.bottomRight, children: [
           Container(
-            width: 84, height: 84,
+            width: 84,
+            height: 84,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [AppColors.primary, AppColors.accent],
@@ -224,7 +224,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               boxShadow: [
                 BoxShadow(
                   color: AppColors.primary.withOpacity(0.3),
-                  blurRadius: 16, offset: const Offset(0, 6),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
@@ -232,7 +233,8 @@ class _ProfileScreenState extends State<ProfileScreen>
               child: Text(
                 prov.initials,
                 style: const TextStyle(
-                  fontFamily: 'Nunito', fontSize: 30,
+                  fontFamily: 'Nunito',
+                  fontSize: 30,
                   fontWeight: FontWeight.w800,
                   color: Colors.white,
                 ),
@@ -241,8 +243,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           // Badge patient
           Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 6, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
             decoration: BoxDecoration(
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(8),
@@ -250,7 +251,8 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
             child: const Text('Patient',
                 style: TextStyle(
-                  fontFamily: 'Nunito', fontSize: 9,
+                  fontFamily: 'Nunito',
+                  fontSize: 9,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 )),
@@ -260,28 +262,29 @@ class _ProfileScreenState extends State<ProfileScreen>
 
         Text(prov.fullName,
             style: const TextStyle(
-              fontFamily: 'Nunito', fontSize: 22,
+              fontFamily: 'Nunito',
+              fontSize: 22,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
             )),
         const SizedBox(height: 4),
         Text(prov.email,
             style: const TextStyle(
-              fontFamily: 'Nunito', fontSize: 13,
+              fontFamily: 'Nunito',
+              fontSize: 13,
               color: AppColors.textHint,
             )),
         const SizedBox(height: 10),
         Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 12, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
           decoration: BoxDecoration(
             color: AppColors.primary.withOpacity(0.08),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Text(
-              'Membre depuis ${prov.memberSince}',
+          child: Text('Membre depuis ${prov.memberSince}',
               style: const TextStyle(
-                fontFamily: 'Nunito', fontSize: 12,
+                fontFamily: 'Nunito',
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: AppColors.primary,
               )),
@@ -323,96 +326,94 @@ class _ProfileScreenState extends State<ProfileScreen>
         ),
         const SizedBox(height: 14),
 
-      // ── Date de naissance avec picker ──
-      GestureDetector(
-        onTap: () => _pickBirthDate(context, prov),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: AppColors.bgSoft,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: prov.birthDate == null
-                  ? AppColors.riskMedium.withOpacity(0.4)
-                  : AppColors.border,
-            ),
-          ),
-          child: Row(children: [
-            Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(10),
+        // ── Date de naissance avec picker ──
+        GestureDetector(
+          onTap: () => _pickBirthDate(context, prov),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.bgSoft,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: prov.birthDate == null
+                    ? AppColors.riskMedium.withOpacity(0.4)
+                    : AppColors.border,
               ),
-              child: const Icon(Icons.cake_outlined,
-                  color: AppColors.primary, size: 16),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Date de naissance',
-                      style: TextStyle(
-                        fontFamily: 'Nunito', fontSize: 11,
-                        color: AppColors.textHint,
-                      )),
-                  Row(children: [
-                    Text(
-                      prov.birthDateFormatted,
-                      style: TextStyle(
-                        fontFamily: 'Nunito', fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: prov.birthDate == null
-                            ? AppColors.textHint
-                            : AppColors.textPrimary,
-                      ),
-                    ),
-                    if (prov.age != null) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary
-                              .withOpacity(0.1),
-                          borderRadius:
-                              BorderRadius.circular(6),
+            child: Row(children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.cake_outlined,
+                    color: AppColors.primary, size: 16),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Date de naissance',
+                        style: TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 11,
+                          color: AppColors.textHint,
+                        )),
+                    Row(children: [
+                      Text(
+                        prov.birthDateFormatted,
+                        style: TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: prov.birthDate == null
+                              ? AppColors.textHint
+                              : AppColors.textPrimary,
                         ),
-                        child: Text('${prov.age} ans',
-                            style: const TextStyle(
-                              fontFamily: 'Nunito',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primary,
-                            )),
                       ),
-                    ],
-                  ]),
-                ],
+                      if (prov.age != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text('${prov.age} ans',
+                              style: const TextStyle(
+                                fontFamily: 'Nunito',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary,
+                              )),
+                        ),
+                      ],
+                    ]),
+                  ],
+                ),
               ),
-            ),
-            Icon(
-              prov.birthDate == null
-                  ? Icons.add_circle_outline_rounded
-                  : Icons.edit_rounded,
-              color: AppColors.primary,
-              size: 18,
-            ),
-          ]),
+              Icon(
+                prov.birthDate == null
+                    ? Icons.add_circle_outline_rounded
+                    : Icons.edit_rounded,
+                color: AppColors.primary,
+                size: 18,
+              ),
+            ]),
+          ),
         ),
-      ),
         if (prov.birthDate == null) ...[
           const SizedBox(height: 8),
           Container(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: AppColors.riskMedium.withOpacity(0.08),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                  color: AppColors.riskMedium.withOpacity(0.2)),
+              border: Border.all(color: AppColors.riskMedium.withOpacity(0.2)),
             ),
             child: const Row(children: [
               Icon(Icons.info_outline_rounded,
@@ -422,7 +423,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                 child: Text(
                   'Renseignez votre date de naissance pour un suivi personnalisé.',
                   style: TextStyle(
-                    fontFamily: 'Nunito', fontSize: 11,
+                    fontFamily: 'Nunito',
+                    fontSize: 11,
                     color: AppColors.riskMedium,
                   ),
                 ),
@@ -436,8 +438,7 @@ class _ProfileScreenState extends State<ProfileScreen>
           value: prov.bloodType,
           icon: Icons.bloodtype_outlined,
           editMode: false,
-          controller:
-              TextEditingController(text: prov.bloodType),
+          controller: TextEditingController(text: prov.bloodType),
         ),
       ]),
     );
@@ -472,8 +473,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   // ── Rendez-vous ───────────────────────────────────────────
-  Widget _buildAppointmentsCard(
-      BuildContext context, ProfileProvider prov) {
+  Widget _buildAppointmentsCard(BuildContext context, ProfileProvider prov) {
     return _SectionCard(
       title: 'Mes rendez-vous',
       icon: Icons.event_available_rounded,
@@ -481,7 +481,8 @@ class _ProfileScreenState extends State<ProfileScreen>
         onTap: () => context.go('/dermatologist'),
         child: const Text('+ Nouveau',
             style: TextStyle(
-              fontFamily: 'Nunito', fontSize: 12,
+              fontFamily: 'Nunito',
+              fontSize: 12,
               fontWeight: FontWeight.w700,
               color: AppColors.primary,
             )),
@@ -490,11 +491,10 @@ class _ProfileScreenState extends State<ProfileScreen>
         if (prov.upcomingAppointments.isEmpty)
           _buildEmptyAppointments(context)
         else
-          ...prov.upcomingAppointments
-              .map((appt) => _AppointmentTile(
-                    appointment: appt,
-                    prov: prov,
-                  )),
+          ...prov.upcomingAppointments.map((appt) => _AppointmentTile(
+                appointment: appt,
+                prov: prov,
+              )),
       ]),
     );
   }
@@ -508,12 +508,12 @@ class _ProfileScreenState extends State<ProfileScreen>
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Column(children: [
-          Icon(Icons.event_busy_rounded,
-              color: AppColors.textHint, size: 32),
+          Icon(Icons.event_busy_rounded, color: AppColors.textHint, size: 32),
           SizedBox(height: 8),
           Text('Aucun rendez-vous à venir',
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 14,
+                fontFamily: 'Nunito',
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textSecondary,
               )),
@@ -521,7 +521,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           Text('Prenez rendez-vous avec un dermatologue',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 12,
+                fontFamily: 'Nunito',
+                fontSize: 12,
                 color: AppColors.textHint,
               )),
         ]),
@@ -540,7 +541,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           child: const Center(
             child: Text('Trouver un dermatologue',
                 style: TextStyle(
-                  fontFamily: 'Nunito', fontSize: 13,
+                  fontFamily: 'Nunito',
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
                 )),
@@ -562,12 +564,10 @@ class _ProfileScreenState extends State<ProfileScreen>
           decoration: BoxDecoration(
             color: AppColors.riskLow.withOpacity(0.08),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-                color: AppColors.riskLow.withOpacity(0.25)),
+            border: Border.all(color: AppColors.riskLow.withOpacity(0.25)),
           ),
           child: const Row(children: [
-            Icon(Icons.lock_rounded,
-                color: AppColors.riskLow, size: 18),
+            Icon(Icons.lock_rounded, color: AppColors.riskLow, size: 18),
             SizedBox(width: 10),
             Expanded(
               child: Column(
@@ -575,23 +575,24 @@ class _ProfileScreenState extends State<ProfileScreen>
                 children: [
                   Text('Données chiffrées AES-256',
                       style: TextStyle(
-                        fontFamily: 'Nunito', fontSize: 13,
+                        fontFamily: 'Nunito',
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
                         color: AppColors.riskLow,
                       )),
                   Text('Conformité RGPD · HDS',
                       style: TextStyle(
-                        fontFamily: 'Nunito', fontSize: 11,
+                        fontFamily: 'Nunito',
+                        fontSize: 11,
                         color: AppColors.textHint,
                       )),
                 ],
               ),
             ),
-            Icon(Icons.verified_rounded,
-                color: AppColors.riskLow, size: 20),
+            Icon(Icons.verified_rounded, color: AppColors.riskLow, size: 20),
           ]),
         ),
-       
+
         const Divider(color: AppColors.border, height: 20),
         _ToggleRow(
           icon: Icons.notifications_outlined,
@@ -665,18 +666,17 @@ class _ProfileScreenState extends State<ProfileScreen>
         decoration: BoxDecoration(
           color: AppColors.bgWhite,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-              color: AppColors.riskHigh.withOpacity(0.3)),
+          border: Border.all(color: AppColors.riskHigh.withOpacity(0.3)),
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.logout_rounded,
-                color: AppColors.riskHigh, size: 18),
+            Icon(Icons.logout_rounded, color: AppColors.riskHigh, size: 18),
             SizedBox(width: 8),
             Text('Se déconnecter',
                 style: TextStyle(
-                  fontFamily: 'Nunito', fontSize: 15,
+                  fontFamily: 'Nunito',
+                  fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: AppColors.riskHigh,
                 )),
@@ -690,8 +690,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Supprimer mes données',
             style: TextStyle(
               fontFamily: 'Nunito',
@@ -701,8 +700,10 @@ class _ProfileScreenState extends State<ProfileScreen>
         content: const Text(
             'Cette action est irréversible. Toutes vos données seront supprimées définitivement.',
             style: TextStyle(
-              fontFamily: 'Nunito', fontSize: 14,
-              color: AppColors.textSecondary, height: 1.5,
+              fontFamily: 'Nunito',
+              fontSize: 14,
+              color: AppColors.textSecondary,
+              height: 1.5,
             )),
         actions: [
           TextButton(
@@ -756,7 +757,8 @@ class _SectionCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withOpacity(0.07),
-            blurRadius: 16, offset: const Offset(0, 4),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -768,7 +770,8 @@ class _SectionCard extends StatelessWidget {
             const SizedBox(width: 8),
             Text(title,
                 style: const TextStyle(
-                  fontFamily: 'Nunito', fontSize: 14,
+                  fontFamily: 'Nunito',
+                  fontSize: 14,
                   fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 )),
@@ -813,7 +816,8 @@ class _AppointmentTile extends StatelessWidget {
       child: Row(children: [
         // Avatar médecin
         Container(
-          width: 42, height: 42,
+          width: 42,
+          height: 42,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [AppColors.primary, AppColors.accent],
@@ -824,12 +828,10 @@ class _AppointmentTile extends StatelessWidget {
           ),
           child: Center(
             child: Text(
-              appointment['doctor']
-                  .toString()
-                  .split(' ')
-                  .last[0],
+              appointment['doctor'].toString().split(' ').last[0],
               style: const TextStyle(
-                fontFamily: 'Nunito', fontSize: 16,
+                fontFamily: 'Nunito',
+                fontSize: 16,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
               ),
@@ -843,19 +845,22 @@ class _AppointmentTile extends StatelessWidget {
             children: [
               Text(appointment['doctor'].toString(),
                   style: const TextStyle(
-                    fontFamily: 'Nunito', fontSize: 13,
+                    fontFamily: 'Nunito',
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
                   )),
               Text(appointment['date'].toString(),
                   style: const TextStyle(
-                    fontFamily: 'Nunito', fontSize: 11,
+                    fontFamily: 'Nunito',
+                    fontSize: 11,
                     color: AppColors.textHint,
                   )),
               Text(appointment['address'].toString(),
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontFamily: 'Nunito', fontSize: 11,
+                    fontFamily: 'Nunito',
+                    fontSize: 11,
                     color: AppColors.textHint,
                   )),
             ],
@@ -864,15 +869,15 @@ class _AppointmentTile extends StatelessWidget {
         const SizedBox(width: 8),
         // Badge statut
         Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 8, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
           decoration: BoxDecoration(
             color: statusColor.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(statusLabel,
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 10,
+                fontFamily: 'Nunito',
+                fontSize: 10,
                 fontWeight: FontWeight.w700,
                 color: statusColor,
               )),
@@ -903,7 +908,8 @@ class _InfoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(children: [
       Container(
-        width: 36, height: 36,
+        width: 36,
+        height: 36,
         decoration: BoxDecoration(
           color: AppColors.primary.withOpacity(0.08),
           borderRadius: BorderRadius.circular(10),
@@ -917,7 +923,8 @@ class _InfoRow extends StatelessWidget {
           children: [
             Text(label,
                 style: const TextStyle(
-                  fontFamily: 'Nunito', fontSize: 11,
+                  fontFamily: 'Nunito',
+                  fontSize: 11,
                   color: AppColors.textHint,
                 )),
             editMode
@@ -925,28 +932,27 @@ class _InfoRow extends StatelessWidget {
                     controller: controller,
                     keyboardType: keyboardType,
                     style: const TextStyle(
-                      fontFamily: 'Nunito', fontSize: 14,
+                      fontFamily: 'Nunito',
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     ),
                     decoration: const InputDecoration(
                       isDense: true,
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 4),
+                      contentPadding: EdgeInsets.symmetric(vertical: 4),
                       border: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: AppColors.primary),
+                        borderSide: BorderSide(color: AppColors.primary),
                       ),
                       focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: AppColors.primary,
-                            width: 1.5),
+                        borderSide:
+                            BorderSide(color: AppColors.primary, width: 1.5),
                       ),
                     ),
                   )
                 : Text(value,
                     style: const TextStyle(
-                      fontFamily: 'Nunito', fontSize: 14,
+                      fontFamily: 'Nunito',
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: AppColors.textPrimary,
                     )),
@@ -976,17 +982,14 @@ class _ToggleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(children: [
       Container(
-        width: 36, height: 36,
+        width: 36,
+        height: 36,
         decoration: BoxDecoration(
-          color: value
-              ? AppColors.primary.withOpacity(0.1)
-              : AppColors.bgSoft,
+          color: value ? AppColors.primary.withOpacity(0.1) : AppColors.bgSoft,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon,
-            color:
-                value ? AppColors.primary : AppColors.textHint,
-            size: 17),
+            color: value ? AppColors.primary : AppColors.textHint, size: 17),
       ),
       const SizedBox(width: 12),
       Expanded(
@@ -995,13 +998,15 @@ class _ToggleRow extends StatelessWidget {
           children: [
             Text(label,
                 style: const TextStyle(
-                  fontFamily: 'Nunito', fontSize: 13,
+                  fontFamily: 'Nunito',
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 )),
             Text(subtitle,
                 style: const TextStyle(
-                  fontFamily: 'Nunito', fontSize: 11,
+                  fontFamily: 'Nunito',
+                  fontSize: 11,
                   color: AppColors.textHint,
                 )),
           ],
@@ -1011,21 +1016,19 @@ class _ToggleRow extends StatelessWidget {
         onTap: onToggle,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
-          width: 44, height: 24,
+          width: 44,
+          height: 24,
           decoration: BoxDecoration(
-            color:
-                value ? AppColors.primary : AppColors.border,
+            color: value ? AppColors.primary : AppColors.border,
             borderRadius: BorderRadius.circular(12),
           ),
           child: AnimatedAlign(
             duration: const Duration(milliseconds: 250),
-            alignment: value
-                ? Alignment.centerRight
-                : Alignment.centerLeft,
+            alignment: value ? Alignment.centerRight : Alignment.centerLeft,
             child: Container(
-              width: 18, height: 18,
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 3),
+              width: 18,
+              height: 18,
+              margin: const EdgeInsets.symmetric(horizontal: 3),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
@@ -1055,28 +1058,30 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(
-            vertical: 12, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
         margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
           color: color.withOpacity(0.07),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-              color: color.withOpacity(0.15)),
+          border: Border.all(color: color.withOpacity(0.15)),
         ),
         child: Column(children: [
           Icon(icon, color: color, size: 18),
           const SizedBox(height: 4),
           Text(value,
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 22,
-                fontWeight: FontWeight.w800, color: color,
+                fontFamily: 'Nunito',
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: color,
               )),
           Text(label,
               textAlign: TextAlign.center,
               style: const TextStyle(
-                fontFamily: 'Nunito', fontSize: 10,
-                color: AppColors.textSecondary, height: 1.3,
+                fontFamily: 'Nunito',
+                fontSize: 10,
+                color: AppColors.textSecondary,
+                height: 1.3,
               )),
         ]),
       ),
@@ -1105,7 +1110,8 @@ class _DataRow extends StatelessWidget {
       onTap: onTap,
       child: Row(children: [
         Container(
-          width: 38, height: 38,
+          width: 38,
+          height: 38,
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
@@ -1119,19 +1125,21 @@ class _DataRow extends StatelessWidget {
             children: [
               Text(label,
                   style: const TextStyle(
-                    fontFamily: 'Nunito', fontSize: 13,
+                    fontFamily: 'Nunito',
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
                   )),
               Text(subtitle,
                   style: const TextStyle(
-                    fontFamily: 'Nunito', fontSize: 11,
+                    fontFamily: 'Nunito',
+                    fontSize: 11,
                     color: AppColors.textHint,
                   )),
             ],
           ),
         ),
-        Icon(Icons.arrow_forward_ios_rounded,
+        const Icon(Icons.arrow_forward_ios_rounded,
             color: AppColors.textHint, size: 14),
       ]),
     );

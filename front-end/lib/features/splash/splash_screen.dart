@@ -100,17 +100,17 @@ class _SplashScreenState extends State<SplashScreen>
         child: Stack(
           children: [
             // Cercles décoratifs
-            Positioned(
+            const Positioned(
               top: -80,
               right: -80,
               child: _Circle(180, AppColors.primaryLight, 0.07),
             ),
-            Positioned(
+            const Positioned(
               top: 60,
               left: -40,
               child: _Circle(120, AppColors.accent, 0.06),
             ),
-            Positioned(
+            const Positioned(
               bottom: 100,
               right: -50,
               child: _Circle(160, AppColors.primary, 0.05),
@@ -225,11 +225,10 @@ class _SplashScreenState extends State<SplashScreen>
                     child: Column(children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
+                        child: const LinearProgressIndicator(
                           minHeight: 3,
                           backgroundColor: AppColors.border,
-                          valueColor:
-                              const AlwaysStoppedAnimation(AppColors.primary),
+                          valueColor: AlwaysStoppedAnimation(AppColors.primary),
                         ),
                       ),
                       const SizedBox(height: 10),

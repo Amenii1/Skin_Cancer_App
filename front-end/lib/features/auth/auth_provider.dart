@@ -18,7 +18,7 @@ class AuthProvider extends ChangeNotifier {
   bool _obscurePassword = true;
   bool _obscureConfirm = true;
   bool _acceptPolicy = false;
-  bool _biometricEnabled = false;
+  final bool _biometricEnabled = false;
   UserRole _selectedRole = UserRole.patient;
 
   // Getters
@@ -274,7 +274,7 @@ class AuthProvider extends ChangeNotifier {
     }
     // Validate date of birth (optional, but reasonable age if provided)
     if (dateOfBirth != null) {
-      final age = DateTime.now().difference(dateOfBirth!).inDays ~/ 365;
+      final age = DateTime.now().difference(dateOfBirth).inDays ~/ 365;
       if (age < 13 || age > 120) {
         _errorMessage = 'Âge non réaliste (13-120 ans).';
         _status = AuthStatus.error;
@@ -303,17 +303,17 @@ class AuthProvider extends ChangeNotifier {
       }
       if (_selectedRole == UserRole.patient && dateOfBirth != null) {
         body['date_naissance'] =
-            '${dateOfBirth!.year}-${dateOfBirth!.month.toString().padLeft(2, '0')}-${dateOfBirth!.day.toString().padLeft(2, '0')}';
+            '${dateOfBirth.year}-${dateOfBirth.month.toString().padLeft(2, '0')}-${dateOfBirth.day.toString().padLeft(2, '0')}';
       }
       if (_selectedRole == UserRole.dermatologue) {
-        if (speciality != null && speciality!.trim().isNotEmpty) {
-          body['specialite'] = speciality!.trim();
+        if (speciality != null && speciality.trim().isNotEmpty) {
+          body['specialite'] = speciality.trim();
         }
-        if (cabinetAddress != null && cabinetAddress!.trim().isNotEmpty) {
-          body['adresse_cabinet'] = cabinetAddress!.trim();
+        if (cabinetAddress != null && cabinetAddress.trim().isNotEmpty) {
+          body['adresse_cabinet'] = cabinetAddress.trim();
         }
-        if (rppsNumber != null && rppsNumber!.trim().isNotEmpty) {
-          body['numero_rpps'] = rppsNumber!.trim();
+        if (rppsNumber != null && rppsNumber.trim().isNotEmpty) {
+          body['numero_rpps'] = rppsNumber.trim();
         }
       }
       await api.postJson('/auth/register', body: body);
@@ -334,17 +334,13 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // ── Logout ────────────────────────────────────────────────
-  void logout() {
-    _currentUser = null;
-    _accessToken = null;
+  Future<void> logout() async {
     _status = AuthStatus.idle;
     _errorMessage = null;
-    _obscurePassword = true;
-    _obscureConfirm = true;
-    _acceptPolicy = false;
-    _selectedRole = UserRole.patient;
+    _accessToken = null;
+    _currentUser = null;
+    await _persistToken(null);
     notifyListeners();
-    _persistToken(null);
   }
 
   void reset() {
@@ -354,6 +350,47 @@ class AuthProvider extends ChangeNotifier {
     _obscureConfirm = true;
     _acceptPolicy = false;
     notifyListeners();
+  }
+
+  // ── Update Profile ────────────────────────────────────────
+  Future<bool> updateProfile({
+    required String name,
+    required String phone,
+    String? speciality,
+    String? cabinetAddress,
+    String? rppsNumber,
+  }) async {
+    if (_accessToken == null) return false;
+    _status = AuthStatus.loading;
+    notifyListeners();
+
+    try {
+      final api = ApiClient(accessToken: _accessToken);
+      final body = <String, dynamic>{
+        'nom': name,
+        'telephone': phone,
+      };
+      if (_currentUser?.isDermatologue ?? false) {
+        if (speciality != null) body['specialite'] = speciality;
+        if (cabinetAddress != null) body['adresse_cabinet'] = cabinetAddress;
+        if (rppsNumber != null) body['numero_rpps'] = rppsNumber;
+      }
+
+      await api.putJson('/profile/update', body: body);
+
+      // Refresh local user data
+      final profileResp = await api.getJson('/profile/');
+      _setUserFromProfile(profileResp, emailFallback: _currentUser?.email ?? '');
+
+      _status = AuthStatus.success;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _status = AuthStatus.error;
+      _errorMessage = 'Erreur lors de la mise à jour du profil.';
+      notifyListeners();
+      return false;
+    }
   }
 
   bool _isValidEmail(String email) =>

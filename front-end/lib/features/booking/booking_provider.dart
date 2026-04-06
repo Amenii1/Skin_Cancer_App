@@ -184,8 +184,9 @@ class BookingProvider extends ChangeNotifier {
   }
 
   Future<bool> confirmBooking() async {
-    if (!canConfirm || _accessToken == null || _selectedSlot == null)
+    if (!canConfirm || _accessToken == null || _selectedSlot == null) {
       return false;
+    }
     _status = BookingStatus.loading;
     notifyListeners();
 

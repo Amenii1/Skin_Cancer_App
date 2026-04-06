@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -460,17 +459,17 @@ class _BodyMapScreenState extends State<BodyMapScreen>
 
   // ── Légende ───────────────────────────────────────────────
   Widget _buildLegend() {
-    return Row(
+    return const Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _LegendDot(color: AppColors.border, label: 'Aucune'),
-        const SizedBox(width: 14),
+        SizedBox(width: 14),
         _LegendDot(color: AppColors.riskLow, label: 'Faible'),
-        const SizedBox(width: 14),
+        SizedBox(width: 14),
         _LegendDot(color: AppColors.riskMedium, label: 'Modéré'),
-        const SizedBox(width: 14),
+        SizedBox(width: 14),
         _LegendDot(color: AppColors.riskHigh, label: 'Élevé'),
-        const SizedBox(width: 14),
+        SizedBox(width: 14),
         _LegendDot(color: AppColors.primary, label: 'Sélectionné'),
       ],
     );

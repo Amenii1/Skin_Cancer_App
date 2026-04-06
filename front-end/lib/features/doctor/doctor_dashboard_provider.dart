@@ -98,11 +98,17 @@ class DoctorDashboardProvider extends ChangeNotifier {
     return 'Faible';
   }
 
+  Map<String, dynamic> _stats = {};
+  Map<String, dynamic> get stats => _stats;
+
   Future<void> syncFromBackend(String? accessToken) async {
     if (accessToken == null || accessToken.isEmpty) return;
     _accessToken = accessToken;
     try {
       final api = ApiClient(accessToken: _accessToken);
+
+      // Fetch Stats
+      _stats = await api.getJson('/stats/dashboard');
 
       final reservations = await api.getJsonList('/reservations/doctor');
       appointments

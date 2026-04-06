@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
-import '../../core/models/user_model.dart';
 import 'auth_provider.dart';
 import 'widgets/auth_text_field.dart';
 
@@ -240,19 +239,19 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildDivider() {
-    return Row(children: [
-      const Expanded(child: Divider(color: AppColors.border, thickness: 1)),
+    return const Row(children: [
+      Expanded(child: Divider(color: AppColors.border, thickness: 1)),
       Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Text('comptes de démonstration',
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'Nunito',
               fontSize: 12,
               fontWeight: FontWeight.w600,
               color: AppColors.textHint,
             )),
       ),
-      const Expanded(child: Divider(color: AppColors.border, thickness: 1)),
+      Expanded(child: Divider(color: AppColors.border, thickness: 1)),
     ]);
   }
 

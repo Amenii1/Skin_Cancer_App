@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
+import '../auth/auth_provider.dart';
+import 'doctor_patients_provider.dart';
 
 class DoctorPatientsScreen extends StatefulWidget {
   const DoctorPatientsScreen({super.key});
@@ -87,6 +90,11 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen>
         vsync: this, duration: const Duration(milliseconds: 500));
     _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _animCtrl.forward();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = context.read<AuthProvider>();
+      context.read<DoctorPatientsProvider>().fetchPatients(auth.accessToken);
+    });
   }
 
   @override
@@ -96,29 +104,31 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen>
     super.dispose();
   }
 
-  List<Map<String, dynamic>> get _filtered {
-    if (_searchQuery.isEmpty) return _patients;
-    return _patients
-        .where((p) => p['name']
-            .toString()
-            .toLowerCase()
-            .contains(_searchQuery.toLowerCase()))
+  List<PatientInfo> get _filtered {
+    final patients = context.watch<DoctorPatientsProvider>().patients;
+    if (_searchQuery.isEmpty) return patients;
+    return patients
+        .where((p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase()))
         .toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final prov = context.watch<DoctorPatientsProvider>();
     return Scaffold(
       backgroundColor: AppColors.bgSoft,
-      body: FadeTransition(
-        opacity: _fadeAnim,
-        child: Column(children: [
-          _buildHeader(context),
-          _buildSearchBar(),
-          _buildStats(),
-          Expanded(child: _buildList()),
-        ]),
-      ),
+      body: prov.isLoading
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF7F77DD)))
+          : FadeTransition(
+              opacity: _fadeAnim,
+              child: Column(children: [
+                _buildHeader(context),
+                _buildSearchBar(),
+                _buildStats(prov.patients),
+                Expanded(child: _buildList()),
+              ]),
+            ),
       bottomNavigationBar: _buildBottomNav(context),
     );
   }
@@ -236,14 +246,14 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen>
     );
   }
 
-  Widget _buildStats() {
-    final high = _patients.where((p) => p['risk'] == 'Élevé').length;
-    final medium = _patients.where((p) => p['risk'] == 'Modéré').length;
+  Widget _buildStats(List<PatientInfo> patients) {
+    final high = patients.where((p) => p.riskLevel == 'Élevé').length;
+    final medium = patients.where((p) => p.riskLevel == 'Modéré').length;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
       child: Row(children: [
         _MiniStat(
-          value: '${_patients.length}',
+          value: '${patients.length}',
           label: 'Total',
           color: const Color(0xFF7F77DD),
         ),
@@ -266,19 +276,33 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen>
   Widget _buildList() {
     final filtered = _filtered;
     if (filtered.isEmpty) {
-      return const Center(
-        child: Text('Aucun patient trouvé',
-            style: TextStyle(
-              fontFamily: 'Nunito',
-              fontSize: 15,
-              color: AppColors.textHint,
-            )),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.people_outline_rounded,
+                size: 64, color: AppColors.textHint.withOpacity(0.3)),
+            const SizedBox(height: 16),
+            const Text(
+              'Aucun patient trouvé',
+              style: TextStyle(
+                fontFamily: 'Nunito',
+                fontSize: 16,
+                color: AppColors.textHint,
+              ),
+            ),
+          ],
+        ),
       );
     }
+
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
       itemCount: filtered.length,
-      itemBuilder: (_, i) => _PatientCard(patient: filtered[i]),
+      itemBuilder: (_, i) {
+        final p = filtered[i];
+        return _PatientCard(p: p);
+      },
     );
   }
 
@@ -333,12 +357,12 @@ class _DoctorPatientsScreenState extends State<DoctorPatientsScreen>
 }
 
 class _PatientCard extends StatelessWidget {
-  final Map<String, dynamic> patient;
-  const _PatientCard({required this.patient});
+  final PatientInfo p;
+  const _PatientCard({required this.p});
 
   @override
   Widget build(BuildContext context) {
-    final riskColor = patient['riskColor'] as Color;
+    final riskColor = p.riskColor;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -369,7 +393,7 @@ class _PatientCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(13),
             ),
             child: Center(
-              child: Text(patient['initials'],
+              child: Text(p.initials,
                   style: const TextStyle(
                     fontFamily: 'Nunito',
                     fontSize: 15,
@@ -383,7 +407,7 @@ class _PatientCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(patient['name'],
+                Text(p.name,
                     style: const TextStyle(
                       fontFamily: 'Nunito',
                       fontSize: 14,
@@ -391,15 +415,14 @@ class _PatientCard extends StatelessWidget {
                       color: AppColors.textPrimary,
                     )),
                 Text(
-                  '${patient['age']} ans · '
-                  '${patient['lesions']} lésion(s)',
+                  '${p.lesionCount} lésion(s) · ${p.ville}',
                   style: const TextStyle(
                     fontFamily: 'Nunito',
                     fontSize: 12,
                     color: AppColors.textSecondary,
                   ),
                 ),
-                Text(patient['lastVisit'],
+                Text('Dernière visite: ${p.lastVisit}',
                     style: const TextStyle(
                       fontFamily: 'Nunito',
                       fontSize: 11,
@@ -417,27 +440,12 @@ class _PatientCard extends StatelessWidget {
                   color: riskColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text(patient['risk'],
+                child: Text(p.riskLevel,
                     style: TextStyle(
                       fontFamily: 'Nunito',
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: riskColor,
-                    )),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF7F77DD).withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(patient['status'],
-                    style: const TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 9,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF7F77DD),
                     )),
               ),
             ],
@@ -447,19 +455,20 @@ class _PatientCard extends StatelessWidget {
         const Divider(color: AppColors.border, height: 1),
         const SizedBox(height: 10),
         Row(children: [
-          Expanded(
-            child: _PatientActionBtn(
-              icon: Icons.phone_outlined,
-              label: patient['phone'],
-              color: AppColors.riskLow,
+          if (p.phone.isNotEmpty)
+            Expanded(
+              child: _PatientActionBtn(
+                icon: Icons.phone_outlined,
+                label: p.phone,
+                color: AppColors.riskLow,
+              ),
             ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
+          if (p.phone.isNotEmpty) const SizedBox(width: 10),
+          const Expanded(
             child: _PatientActionBtn(
               icon: Icons.email_outlined,
               label: 'Envoyer email',
-              color: const Color(0xFF7F77DD),
+              color: Color(0xFF7F77DD),
             ),
           ),
         ]),

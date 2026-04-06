@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
@@ -96,10 +95,10 @@ class BodyMapWidget extends StatelessWidget {
 class _Legend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Niveaux de risque',
           style: TextStyle(
             fontFamily: 'Nunito',
@@ -108,11 +107,11 @@ class _Legend extends StatelessWidget {
             color: AppColors.textSecondary,
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         _LegendItem(color: AppColors.riskLow, label: 'Faible'),
-        const SizedBox(height: 5),
+        SizedBox(height: 5),
         _LegendItem(color: AppColors.riskMedium, label: 'Modéré'),
-        const SizedBox(height: 5),
+        SizedBox(height: 5),
         _LegendItem(color: AppColors.riskHigh, label: 'Élevé'),
       ],
     );
@@ -128,7 +127,8 @@ class _LegendItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(children: [
       Container(
-        width: 10, height: 10,
+        width: 10,
+        height: 10,
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
@@ -165,9 +165,7 @@ class _ZonesList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final risky = zones.entries
-        .where((e) => e.value != RiskLevel.low)
-        .toList();
+    final risky = zones.entries.where((e) => e.value != RiskLevel.low).toList();
 
     if (risky.isEmpty) {
       return const Text(
@@ -200,7 +198,8 @@ class _ZonesList extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 6),
             child: Row(children: [
               Container(
-                width: 6, height: 6,
+                width: 6,
+                height: 6,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: color,
@@ -413,6 +412,5 @@ class _BodyPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _BodyPainter old) =>
-      old.zones != zones;
+  bool shouldRepaint(covariant _BodyPainter old) => old.zones != zones;
 }

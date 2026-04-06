@@ -25,6 +25,7 @@ from app.routers import (
     reservation,
     disponibilite,
     stats,
+    doctor,
 )
 
 app = FastAPI(title="Skin Cancer API")
@@ -54,6 +55,7 @@ app.include_router(referral.router)
 app.include_router(reservation.router)
 app.include_router(disponibilite.router)
 app.include_router(stats.router)
+app.include_router(doctor.router)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 

@@ -21,7 +21,7 @@ class ResultProvider extends ChangeNotifier {
   ResultRisk _risk = ResultRisk.medium;
   double _riskPercent = 0.62;
   double _confidence = 0.89;
-  String _zone = 'Dos';
+  final String _zone = 'Dos';
   bool _showDetails = false;
 
   ResultRisk get risk => _risk;
@@ -37,25 +37,34 @@ class ResultProvider extends ChangeNotifier {
 
   String get riskLabel {
     switch (_risk) {
-      case ResultRisk.low: return 'Faible';
-      case ResultRisk.medium: return 'Modéré';
-      case ResultRisk.high: return 'Élevé';
+      case ResultRisk.low:
+        return 'Faible';
+      case ResultRisk.medium:
+        return 'Modéré';
+      case ResultRisk.high:
+        return 'Élevé';
     }
   }
 
   Color get riskColor {
     switch (_risk) {
-      case ResultRisk.low: return AppColors.riskLow;
-      case ResultRisk.medium: return AppColors.riskMedium;
-      case ResultRisk.high: return AppColors.riskHigh;
+      case ResultRisk.low:
+        return AppColors.riskLow;
+      case ResultRisk.medium:
+        return AppColors.riskMedium;
+      case ResultRisk.high:
+        return AppColors.riskHigh;
     }
   }
 
   String get riskEmoji {
     switch (_risk) {
-      case ResultRisk.low: return '✅';
-      case ResultRisk.medium: return '⚠️';
-      case ResultRisk.high: return '🚨';
+      case ResultRisk.low:
+        return '✅';
+      case ResultRisk.medium:
+        return '⚠️';
+      case ResultRisk.high:
+        return '🚨';
     }
   }
 
@@ -134,32 +143,32 @@ class ResultProvider extends ChangeNotifier {
 
   // Caractéristiques détectées (simulations)
   List<Map<String, dynamic>> get detectedFeatures => [
-    {
-      'label': 'Asymétrie',
-      'value': _risk == ResultRisk.low ? 'Normale' : 'Légère',
-      'ok': _risk == ResultRisk.low,
-    },
-    {
-      'label': 'Bords',
-      'value': _risk == ResultRisk.high ? 'Irréguliers' : 'Réguliers',
-      'ok': _risk != ResultRisk.high,
-    },
-    {
-      'label': 'Couleur',
-      'value': _risk == ResultRisk.low ? 'Uniforme' : 'Hétérogène',
-      'ok': _risk == ResultRisk.low,
-    },
-    {
-      'label': 'Diamètre',
-      'value': _risk == ResultRisk.high ? '> 6mm' : '< 6mm',
-      'ok': _risk != ResultRisk.high,
-    },
-    {
-      'label': 'Évolution',
-      'value': 'À confirmer',
-      'ok': true,
-    },
-  ];
+        {
+          'label': 'Asymétrie',
+          'value': _risk == ResultRisk.low ? 'Normale' : 'Légère',
+          'ok': _risk == ResultRisk.low,
+        },
+        {
+          'label': 'Bords',
+          'value': _risk == ResultRisk.high ? 'Irréguliers' : 'Réguliers',
+          'ok': _risk != ResultRisk.high,
+        },
+        {
+          'label': 'Couleur',
+          'value': _risk == ResultRisk.low ? 'Uniforme' : 'Hétérogène',
+          'ok': _risk == ResultRisk.low,
+        },
+        {
+          'label': 'Diamètre',
+          'value': _risk == ResultRisk.high ? '> 6mm' : '< 6mm',
+          'ok': _risk != ResultRisk.high,
+        },
+        {
+          'label': 'Évolution',
+          'value': 'À confirmer',
+          'ok': true,
+        },
+      ];
 
   void simulateResult(ResultRisk risk) {
     _risk = risk;

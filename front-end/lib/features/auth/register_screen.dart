@@ -363,7 +363,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.calendar_today_outlined,
+                    const Icon(Icons.calendar_today_outlined,
                         color: AppColors.textHint, size: 20),
                     const SizedBox(width: 12),
                     Expanded(
@@ -371,7 +371,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                         _birthDate == null
                             ? '25 Déc 1990'
                             : _birthDateFormatted(_birthDate!),
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontFamily: 'Nunito',
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
@@ -379,7 +379,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                         ),
                       ),
                     ),
-                    Icon(Icons.arrow_drop_down_rounded,
+                    const Icon(Icons.arrow_drop_down_rounded,
                         color: AppColors.textHint),
                   ],
                 ),
@@ -730,7 +730,7 @@ class _PolicyCheckbox extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: RichText(
-            text: TextSpan(
+            text: const TextSpan(
               style: TextStyle(
                 fontFamily: 'Nunito',
                 fontSize: 13,
@@ -738,7 +738,7 @@ class _PolicyCheckbox extends StatelessWidget {
                 height: 1.5,
               ),
               children: [
-                const TextSpan(text: "J'accepte la "),
+                TextSpan(text: "J'accepte la "),
                 TextSpan(
                   text: 'politique de confidentialité',
                   style: TextStyle(
@@ -746,7 +746,7 @@ class _PolicyCheckbox extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const TextSpan(text: ' et les '),
+                TextSpan(text: ' et les '),
                 TextSpan(
                   text: 'conditions d\'utilisation',
                   style: TextStyle(
@@ -754,7 +754,7 @@ class _PolicyCheckbox extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const TextSpan(text: ' de DermaScan AI.'),
+                TextSpan(text: ' de DermaScan AI.'),
               ],
             ),
           ),

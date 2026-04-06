@@ -25,8 +25,7 @@ class _BookingScreenState extends State<BookingScreen>
     super.initState();
     _animCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
-    _fadeAnim =
-        CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _animCtrl.forward();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = context.read<AuthProvider>();
@@ -61,8 +60,7 @@ class _BookingScreenState extends State<BookingScreen>
               padding: const EdgeInsets.all(20),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
-                  if (prov.doctor != null)
-                    _buildDoctorCard(prov.doctor!),
+                  if (prov.doctor != null) _buildDoctorCard(prov.doctor!),
                   const SizedBox(height: 20),
                   _buildDaySelector(prov),
                   const SizedBox(height: 20),
@@ -88,14 +86,17 @@ class _BookingScreenState extends State<BookingScreen>
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
-        left: 20, right: 20, bottom: 20,
+        left: 20,
+        right: 20,
+        bottom: 20,
       ),
       color: AppColors.bgWhite,
       child: Row(children: [
         GestureDetector(
           onTap: () => context.go('/dermatologist'),
           child: Container(
-            width: 42, height: 42,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
               color: AppColors.bgSoft,
               borderRadius: BorderRadius.circular(12),
@@ -112,13 +113,15 @@ class _BookingScreenState extends State<BookingScreen>
             children: [
               Text('Prendre rendez-vous',
                   style: TextStyle(
-                    fontFamily: 'Nunito', fontSize: 18,
+                    fontFamily: 'Nunito',
+                    fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
                   )),
               Text('Choisissez un créneau disponible',
                   style: TextStyle(
-                    fontFamily: 'Nunito', fontSize: 12,
+                    fontFamily: 'Nunito',
+                    fontSize: 12,
                     color: AppColors.textHint,
                   )),
             ],
@@ -135,18 +138,19 @@ class _BookingScreenState extends State<BookingScreen>
       decoration: BoxDecoration(
         color: AppColors.bgWhite,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-            color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withOpacity(0.08),
-            blurRadius: 16, offset: const Offset(0, 4),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Row(children: [
         Container(
-          width: 52, height: 52,
+          width: 52,
+          height: 52,
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [AppColors.primary, AppColors.accent],
@@ -159,7 +163,8 @@ class _BookingScreenState extends State<BookingScreen>
             child: Text(
               doc.name.split(' ').last[0],
               style: const TextStyle(
-                fontFamily: 'Nunito', fontSize: 20,
+                fontFamily: 'Nunito',
+                fontSize: 20,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
               ),
@@ -173,13 +178,15 @@ class _BookingScreenState extends State<BookingScreen>
             children: [
               Text(doc.name,
                   style: const TextStyle(
-                    fontFamily: 'Nunito', fontSize: 15,
+                    fontFamily: 'Nunito',
+                    fontSize: 15,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
                   )),
               Text(doc.specialty,
                   style: const TextStyle(
-                    fontFamily: 'Nunito', fontSize: 12,
+                    fontFamily: 'Nunito',
+                    fontSize: 12,
                     color: AppColors.textSecondary,
                   )),
               const SizedBox(height: 4),
@@ -191,7 +198,8 @@ class _BookingScreenState extends State<BookingScreen>
                   child: Text(doc.address,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        fontFamily: 'Nunito', fontSize: 11,
+                        fontFamily: 'Nunito',
+                        fontSize: 11,
                         color: AppColors.textHint,
                       )),
                 ),
@@ -202,19 +210,20 @@ class _BookingScreenState extends State<BookingScreen>
         // Note
         Column(children: [
           Row(children: [
-            const Icon(Icons.star_rounded,
-                color: Color(0xFFFFBD00), size: 14),
+            const Icon(Icons.star_rounded, color: Color(0xFFFFBD00), size: 14),
             const SizedBox(width: 3),
             Text('${doc.rating}',
                 style: const TextStyle(
-                  fontFamily: 'Nunito', fontSize: 13,
+                  fontFamily: 'Nunito',
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 )),
           ]),
           Text('${doc.reviewCount} avis',
               style: const TextStyle(
-                fontFamily: 'Nunito', fontSize: 10,
+                fontFamily: 'Nunito',
+                fontSize: 10,
                 color: AppColors.textHint,
               )),
         ]),
@@ -229,7 +238,8 @@ class _BookingScreenState extends State<BookingScreen>
       children: [
         const Text('Choisissez une date',
             style: TextStyle(
-              fontFamily: 'Nunito', fontSize: 15,
+              fontFamily: 'Nunito',
+              fontSize: 15,
               fontWeight: FontWeight.w800,
               color: AppColors.textPrimary,
             )),
@@ -247,17 +257,13 @@ class _BookingScreenState extends State<BookingScreen>
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   width: 60,
-                  margin: EdgeInsets.only(
-                      right: i < prov.days.length - 1 ? 8 : 0),
+                  margin:
+                      EdgeInsets.only(right: i < prov.days.length - 1 ? 8 : 0),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? AppColors.primary
-                        : AppColors.bgWhite,
+                    color: isSelected ? AppColors.primary : AppColors.bgWhite,
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: isSelected
-                          ? AppColors.primary
-                          : AppColors.border,
+                      color: isSelected ? AppColors.primary : AppColors.border,
                     ),
                     boxShadow: isSelected
                         ? [
@@ -274,7 +280,8 @@ class _BookingScreenState extends State<BookingScreen>
                     children: [
                       Text(day.dayLabel,
                           style: TextStyle(
-                            fontFamily: 'Nunito', fontSize: 11,
+                            fontFamily: 'Nunito',
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: isSelected
                                 ? Colors.white70
@@ -284,11 +291,11 @@ class _BookingScreenState extends State<BookingScreen>
                       Text(
                         day.date.day.toString(),
                         style: TextStyle(
-                          fontFamily: 'Nunito', fontSize: 20,
+                          fontFamily: 'Nunito',
+                          fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: isSelected
-                              ? Colors.white
-                              : AppColors.textPrimary,
+                          color:
+                              isSelected ? Colors.white : AppColors.textPrimary,
                         ),
                       ),
                     ],
@@ -301,7 +308,8 @@ class _BookingScreenState extends State<BookingScreen>
         const SizedBox(height: 6),
         Text(prov.selectedDay.dateLabel,
             style: const TextStyle(
-              fontFamily: 'Nunito', fontSize: 12,
+              fontFamily: 'Nunito',
+              fontSize: 12,
               color: AppColors.textHint,
             )),
       ],
@@ -314,25 +322,26 @@ class _BookingScreenState extends State<BookingScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(children: [
-          const Text('Créneaux disponibles',
+        const Row(children: [
+          Text('Créneaux disponibles',
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 15,
+                fontFamily: 'Nunito',
+                fontSize: 15,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
               )),
-          const Spacer(),
+          Spacer(),
           // Légende
           _SlotLegend(
               color: AppColors.bgSoft,
               textColor: AppColors.textHint,
               label: 'Indispo'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _SlotLegend(
               color: AppColors.bgWhite,
               textColor: AppColors.textPrimary,
               label: 'Libre'),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
           _SlotLegend(
               color: AppColors.primary,
               textColor: Colors.white,
@@ -349,8 +358,8 @@ class _BookingScreenState extends State<BookingScreen>
               onTap: () => prov.selectSlot(slot),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 180),
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 14, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 decoration: BoxDecoration(
                   color: isSelected
                       ? AppColors.primary
@@ -380,17 +389,14 @@ class _BookingScreenState extends State<BookingScreen>
                   style: TextStyle(
                     fontFamily: 'Nunito',
                     fontSize: 13,
-                    fontWeight: isSelected
-                        ? FontWeight.w700
-                        : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     color: isSelected
                         ? Colors.white
                         : isAvailable
                             ? AppColors.textPrimary
                             : AppColors.textHint,
-                    decoration: !isAvailable
-                        ? TextDecoration.lineThrough
-                        : null,
+                    decoration:
+                        !isAvailable ? TextDecoration.lineThrough : null,
                   ),
                 ),
               ),
@@ -411,7 +417,8 @@ class _BookingScreenState extends State<BookingScreen>
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
-            blurRadius: 12, offset: const Offset(0, 3),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -420,14 +427,16 @@ class _BookingScreenState extends State<BookingScreen>
         children: [
           const Text('Motif de consultation',
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 14,
+                fontFamily: 'Nunito',
+                fontSize: 14,
                 fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
               )),
           const SizedBox(height: 12),
           // Boutons motifs rapides
           Wrap(
-            spacing: 8, runSpacing: 8,
+            spacing: 8,
+            runSpacing: 8,
             children: [
               'Lésion suspecte',
               'Suivi lésion',
@@ -443,8 +452,8 @@ class _BookingScreenState extends State<BookingScreen>
                 },
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 7),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.primary.withOpacity(0.1)
@@ -458,7 +467,8 @@ class _BookingScreenState extends State<BookingScreen>
                   ),
                   child: Text(motif,
                       style: TextStyle(
-                        fontFamily: 'Nunito', fontSize: 12,
+                        fontFamily: 'Nunito',
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: isSelected
                             ? AppColors.primary
@@ -475,13 +485,15 @@ class _BookingScreenState extends State<BookingScreen>
             maxLines: 3,
             onChanged: prov.setNotes,
             style: const TextStyle(
-              fontFamily: 'Nunito', fontSize: 14,
+              fontFamily: 'Nunito',
+              fontSize: 14,
               color: AppColors.textPrimary,
             ),
             decoration: InputDecoration(
               hintText: 'Notes supplémentaires (optionnel)…',
               hintStyle: const TextStyle(
-                fontFamily: 'Nunito', fontSize: 13,
+                fontFamily: 'Nunito',
+                fontSize: 13,
                 color: AppColors.textHint,
               ),
               filled: true,
@@ -489,18 +501,16 @@ class _BookingScreenState extends State<BookingScreen>
               contentPadding: const EdgeInsets.all(14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: AppColors.border),
+                borderSide: const BorderSide(color: AppColors.border),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide:
-                    const BorderSide(color: AppColors.border),
+                borderSide: const BorderSide(color: AppColors.border),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                    color: AppColors.primary, width: 1.5),
+                borderSide:
+                    const BorderSide(color: AppColors.primary, width: 1.5),
               ),
             ),
           ),
@@ -517,8 +527,7 @@ class _BookingScreenState extends State<BookingScreen>
       decoration: BoxDecoration(
         color: AppColors.primary.withOpacity(0.06),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-            color: AppColors.primary.withOpacity(0.2)),
+        border: Border.all(color: AppColors.primary.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -529,7 +538,8 @@ class _BookingScreenState extends State<BookingScreen>
             SizedBox(width: 8),
             Text('Récapitulatif',
                 style: TextStyle(
-                  fontFamily: 'Nunito', fontSize: 13,
+                  fontFamily: 'Nunito',
+                  fontSize: 13,
                   fontWeight: FontWeight.w800,
                   color: AppColors.primary,
                 )),
@@ -560,8 +570,7 @@ class _BookingScreenState extends State<BookingScreen>
   }
 
   // ── Bouton confirmation ───────────────────────────────────
-  Widget _buildConfirmButton(
-      BuildContext context, BookingProvider prov) {
+  Widget _buildConfirmButton(BuildContext context, BookingProvider prov) {
     return GestureDetector(
       onTap: prov.canConfirm && !prov.isLoading
           ? () => prov.confirmBooking()
@@ -583,7 +592,8 @@ class _BookingScreenState extends State<BookingScreen>
               ? [
                   BoxShadow(
                     color: AppColors.primary.withOpacity(0.3),
-                    blurRadius: 16, offset: const Offset(0, 6),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
                   )
                 ]
               : [],
@@ -591,7 +601,8 @@ class _BookingScreenState extends State<BookingScreen>
         child: Center(
           child: prov.isLoading
               ? const SizedBox(
-                  width: 22, height: 22,
+                  width: 22,
+                  height: 22,
                   child: CircularProgressIndicator(
                       color: Colors.white, strokeWidth: 2.2))
               : Row(
@@ -599,9 +610,8 @@ class _BookingScreenState extends State<BookingScreen>
                   children: [
                     Icon(
                       Icons.check_circle_rounded,
-                      color: prov.canConfirm
-                          ? Colors.white
-                          : AppColors.textHint,
+                      color:
+                          prov.canConfirm ? Colors.white : AppColors.textHint,
                       size: 20,
                     ),
                     const SizedBox(width: 8),
@@ -610,11 +620,11 @@ class _BookingScreenState extends State<BookingScreen>
                           ? 'Confirmer le rendez-vous'
                           : 'Choisissez un créneau et un motif',
                       style: TextStyle(
-                        fontFamily: 'Nunito', fontSize: 15,
+                        fontFamily: 'Nunito',
+                        fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: prov.canConfirm
-                            ? Colors.white
-                            : AppColors.textHint,
+                        color:
+                            prov.canConfirm ? Colors.white : AppColors.textHint,
                       ),
                     ),
                   ],
@@ -642,7 +652,8 @@ class _ConfirmationScreen extends StatelessWidget {
             children: [
               // Icône succès animée
               Container(
-                width: 100, height: 100,
+                width: 100,
+                height: 100,
                 decoration: BoxDecoration(
                   color: AppColors.riskLow.withOpacity(0.12),
                   shape: BoxShape.circle,
@@ -658,7 +669,8 @@ class _ConfirmationScreen extends StatelessWidget {
               const Text('Rendez-vous confirmé !',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: 'Nunito', fontSize: 26,
+                    fontFamily: 'Nunito',
+                    fontSize: 26,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
                   )),
@@ -667,8 +679,10 @@ class _ConfirmationScreen extends StatelessWidget {
                 'Votre rendez-vous avec ${prov.doctor?.name ?? 'le médecin'} a été réservé.',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                  fontFamily: 'Nunito', fontSize: 15,
-                  color: AppColors.textSecondary, height: 1.5,
+                  fontFamily: 'Nunito',
+                  fontSize: 15,
+                  color: AppColors.textSecondary,
+                  height: 1.5,
                 ),
               ),
               const SizedBox(height: 28),
@@ -681,7 +695,8 @@ class _ConfirmationScreen extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: AppColors.primary.withOpacity(0.08),
-                      blurRadius: 20, offset: const Offset(0, 6),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
@@ -724,10 +739,7 @@ class _ConfirmationScreen extends StatelessWidget {
                   height: 56,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [
-                        AppColors.primary,
-                        AppColors.accent
-                      ],
+                      colors: [AppColors.primary, AppColors.accent],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
@@ -735,7 +747,8 @@ class _ConfirmationScreen extends StatelessWidget {
                     boxShadow: [
                       BoxShadow(
                         color: AppColors.primary.withOpacity(0.3),
-                        blurRadius: 16, offset: const Offset(0, 6),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
@@ -758,7 +771,8 @@ class _ConfirmationScreen extends StatelessWidget {
                   child: const Center(
                     child: Text('Voir d\'autres médecins',
                         style: TextStyle(
-                          fontFamily: 'Nunito', fontSize: 14,
+                          fontFamily: 'Nunito',
+                          fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textSecondary,
                         )),
@@ -791,7 +805,8 @@ class _SummaryRow extends StatelessWidget {
       const SizedBox(width: 8),
       Text('$label : ',
           style: const TextStyle(
-            fontFamily: 'Nunito', fontSize: 13,
+            fontFamily: 'Nunito',
+            fontSize: 13,
             fontWeight: FontWeight.w600,
             color: AppColors.textSecondary,
           )),
@@ -799,7 +814,8 @@ class _SummaryRow extends StatelessWidget {
         child: Text(value,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontFamily: 'Nunito', fontSize: 13,
+              fontFamily: 'Nunito',
+              fontSize: 13,
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
             )),
@@ -822,7 +838,8 @@ class _SlotLegend extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(children: [
       Container(
-        width: 10, height: 10,
+        width: 10,
+        height: 10,
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(3),
@@ -832,7 +849,8 @@ class _SlotLegend extends StatelessWidget {
       const SizedBox(width: 4),
       Text(label,
           style: TextStyle(
-            fontFamily: 'Nunito', fontSize: 9,
+            fontFamily: 'Nunito',
+            fontSize: 9,
             color: textColor,
           )),
     ]);

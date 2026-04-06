@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
@@ -23,8 +22,7 @@ class _TrackingScreenState extends State<TrackingScreen>
     super.initState();
     _animCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
-    _fadeAnim = CurvedAnimation(
-        parent: _animCtrl, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(parent: _animCtrl, curve: Curves.easeOut);
     _animCtrl.forward();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final auth = context.read<AuthProvider>();
@@ -78,14 +76,17 @@ class _TrackingScreenState extends State<TrackingScreen>
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
-        left: 20, right: 20, bottom: 20,
+        left: 20,
+        right: 20,
+        bottom: 20,
       ),
       decoration: BoxDecoration(
         color: AppColors.bgWhite,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            blurRadius: 10, offset: const Offset(0, 2),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -93,7 +94,8 @@ class _TrackingScreenState extends State<TrackingScreen>
         GestureDetector(
           onTap: () => context.go('/bodymap'),
           child: Container(
-            width: 42, height: 42,
+            width: 42,
+            height: 42,
             decoration: BoxDecoration(
               color: AppColors.bgSoft,
               borderRadius: BorderRadius.circular(12),
@@ -110,21 +112,22 @@ class _TrackingScreenState extends State<TrackingScreen>
             children: [
               Text('Suivi — ${prov.lesionId}',
                   style: const TextStyle(
-                    fontFamily: 'Nunito', fontSize: 18,
+                    fontFamily: 'Nunito',
+                    fontSize: 18,
                     fontWeight: FontWeight.w800,
                     color: AppColors.textPrimary,
                   )),
               Text(prov.lesionZone,
                   style: const TextStyle(
-                    fontFamily: 'Nunito', fontSize: 12,
+                    fontFamily: 'Nunito',
+                    fontSize: 12,
                     color: AppColors.textHint,
                   )),
             ],
           ),
         ),
         Container(
-          padding: const EdgeInsets.symmetric(
-              horizontal: 12, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: color.withOpacity(0.12),
             borderRadius: BorderRadius.circular(12),
@@ -133,8 +136,10 @@ class _TrackingScreenState extends State<TrackingScreen>
           child: Text(
             prov.riskLabel(prov.safeCurrent.risk),
             style: TextStyle(
-              fontFamily: 'Nunito', fontSize: 13,
-              fontWeight: FontWeight.w700, color: color,
+              fontFamily: 'Nunito',
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: color,
             ),
           ),
         ),
@@ -162,7 +167,8 @@ class _TrackingScreenState extends State<TrackingScreen>
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withOpacity(0.07),
-            blurRadius: 16, offset: const Offset(0, 4),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -171,7 +177,8 @@ class _TrackingScreenState extends State<TrackingScreen>
         children: [
           const Text('Historique des scans',
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 14,
+                fontFamily: 'Nunito',
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
               )),
@@ -200,32 +207,27 @@ class _TrackingScreenState extends State<TrackingScreen>
                             color: color,
                             border: isSelected
                                 ? Border.all(
-                                    color: color.withOpacity(0.3),
-                                    width: 4)
+                                    color: color.withOpacity(0.3), width: 4)
                                 : null,
                             boxShadow: isSelected
-                                ? [BoxShadow(
-                                    color: color.withOpacity(0.4),
-                                    blurRadius: 8)]
+                                ? [
+                                    BoxShadow(
+                                        color: color.withOpacity(0.4),
+                                        blurRadius: 8)
+                                  ]
                                 : null,
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          prov.formatDate(e.date)
-                              .split(' ')
-                              .take(2)
-                              .join(' '),
+                          prov.formatDate(e.date).split(' ').take(2).join(' '),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontFamily: 'Nunito',
                             fontSize: 9,
-                            fontWeight: isSelected
-                                ? FontWeight.w700
-                                : FontWeight.w400,
-                            color: isSelected
-                                ? color
-                                : AppColors.textHint,
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w400,
+                            color: isSelected ? color : AppColors.textHint,
                           ),
                         ),
                         Text(
@@ -235,8 +237,7 @@ class _TrackingScreenState extends State<TrackingScreen>
                             fontSize: 8,
                             color: isSelected
                                 ? color.withOpacity(0.7)
-                                : AppColors.textHint
-                                    .withOpacity(0.6),
+                                : AppColors.textHint.withOpacity(0.6),
                           ),
                         ),
                       ]),
@@ -284,7 +285,8 @@ class _TrackingScreenState extends State<TrackingScreen>
           boxShadow: [
             BoxShadow(
               color: color.withOpacity(0.12),
-              blurRadius: 20, offset: const Offset(0, 6),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
@@ -294,23 +296,24 @@ class _TrackingScreenState extends State<TrackingScreen>
             // Date + risque
             Row(children: [
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(prov.formatDate(e.date),
                     style: const TextStyle(
-                      fontFamily: 'Nunito', fontSize: 12,
+                      fontFamily: 'Nunito',
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: AppColors.primary,
                     )),
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
@@ -318,8 +321,10 @@ class _TrackingScreenState extends State<TrackingScreen>
                 child: Text(
                   '${(e.riskPercent * 100).toInt()}% — ${prov.riskLabel(e.risk)}',
                   style: TextStyle(
-                    fontFamily: 'Nunito', fontSize: 12,
-                    fontWeight: FontWeight.w700, color: color,
+                    fontFamily: 'Nunito',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: color,
                   ),
                 ),
               ),
@@ -363,7 +368,8 @@ class _TrackingScreenState extends State<TrackingScreen>
                   Expanded(
                     child: Text(e.notes,
                         style: const TextStyle(
-                          fontFamily: 'Nunito', fontSize: 13,
+                          fontFamily: 'Nunito',
+                          fontSize: 13,
                           color: AppColors.textSecondary,
                           height: 1.5,
                         )),
@@ -387,7 +393,8 @@ class _TrackingScreenState extends State<TrackingScreen>
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withOpacity(0.07),
-            blurRadius: 16, offset: const Offset(0, 4),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -396,7 +403,8 @@ class _TrackingScreenState extends State<TrackingScreen>
         children: [
           const Text('Évolution du risque',
               style: TextStyle(
-                fontFamily: 'Nunito', fontSize: 14,
+                fontFamily: 'Nunito',
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
               )),
@@ -429,7 +437,8 @@ class _TrackingScreenState extends State<TrackingScreen>
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withOpacity(0.07),
-            blurRadius: 16, offset: const Offset(0, 4),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -442,21 +451,22 @@ class _TrackingScreenState extends State<TrackingScreen>
             SizedBox(width: 8),
             Text('Symptômes signalés',
                 style: TextStyle(
-                  fontFamily: 'Nunito', fontSize: 14,
+                  fontFamily: 'Nunito',
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,
                 )),
           ]),
           const SizedBox(height: 12),
           Wrap(
-            spacing: 8, runSpacing: 8,
+            spacing: 8,
+            runSpacing: 8,
             children: symptoms.map((s) {
               final isOk = s == 'Aucun symptôme';
-              final color =
-                  isOk ? AppColors.riskLow : AppColors.riskMedium;
+              final color = isOk ? AppColors.riskLow : AppColors.riskMedium;
               return Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 7),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
@@ -464,16 +474,17 @@ class _TrackingScreenState extends State<TrackingScreen>
                 ),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Icon(
-                    isOk
-                        ? Icons.check_circle_rounded
-                        : Icons.circle_rounded,
-                    color: color, size: 12,
+                    isOk ? Icons.check_circle_rounded : Icons.circle_rounded,
+                    color: color,
+                    size: 12,
                   ),
                   const SizedBox(width: 6),
                   Text(s,
                       style: TextStyle(
-                        fontFamily: 'Nunito', fontSize: 12,
-                        fontWeight: FontWeight.w600, color: color,
+                        fontFamily: 'Nunito',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: color,
                       )),
                 ]),
               );
@@ -500,18 +511,17 @@ class _TrackingScreenState extends State<TrackingScreen>
           boxShadow: [
             BoxShadow(
               color: AppColors.primary.withOpacity(0.3),
-              blurRadius: 16, offset: const Offset(0, 6),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
           ],
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add_a_photo_rounded,
-                color: Colors.white, size: 20),
+            Icon(Icons.add_a_photo_rounded, color: Colors.white, size: 20),
             SizedBox(width: 10),
-            Text('Ajouter un nouveau scan',
-                style: AppFonts.labelBtn),
+            Text('Ajouter un nouveau scan', style: AppFonts.labelBtn),
           ],
         ),
       ),
@@ -538,45 +548,41 @@ class _ScanPreview extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: isCurrent
-            ? color.withOpacity(0.07)
-            : AppColors.bgSoft,
+        color: isCurrent ? color.withOpacity(0.07) : AppColors.bgSoft,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isCurrent
-              ? color.withOpacity(0.25)
-              : AppColors.border,
+          color: isCurrent ? color.withOpacity(0.25) : AppColors.border,
         ),
       ),
       child: Column(children: [
         // Simulation visuelle de la lésion
         Container(
-          width: 60, height: 60,
+          width: 60,
+          height: 60,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: color.withOpacity(0.12),
-            border: Border.all(
-                color: color.withOpacity(0.3), width: 1.5),
+            border: Border.all(color: color.withOpacity(0.3), width: 1.5),
           ),
           child: CustomPaint(
-            painter: _LesionPreviewPainter(
-                color: color, percent: percent),
+            painter: _LesionPreviewPainter(color: color, percent: percent),
           ),
         ),
         const SizedBox(height: 8),
         Text(label,
             textAlign: TextAlign.center,
             style: const TextStyle(
-              fontFamily: 'Nunito', fontSize: 10,
+              fontFamily: 'Nunito',
+              fontSize: 10,
               color: AppColors.textHint,
             )),
         Text(
-          percent > 0
-              ? '${(percent * 100).toInt()}%'
-              : '—',
+          percent > 0 ? '${(percent * 100).toInt()}%' : '—',
           style: TextStyle(
-            fontFamily: 'Nunito', fontSize: 14,
-            fontWeight: FontWeight.w800, color: color,
+            fontFamily: 'Nunito',
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            color: color,
           ),
         ),
       ]),
@@ -634,13 +640,14 @@ class _GraphPainter extends CustomPainter {
     final stepX = w / (entries.length - 1);
 
     final points = entries.asMap().entries.map((e) {
-      return Offset(
-          e.key * stepX, h - e.value.riskPercent * h * 0.85);
+      return Offset(e.key * stepX, h - e.value.riskPercent * h * 0.85);
     }).toList();
 
     // Zone remplie sous la courbe
     final areaPath = Path()..moveTo(points.first.dx, h);
-    for (final p in points) areaPath.lineTo(p.dx, p.dy);
+    for (final p in points) {
+      areaPath.lineTo(p.dx, p.dy);
+    }
     areaPath.lineTo(points.last.dx, h);
     areaPath.close();
 
@@ -658,14 +665,12 @@ class _GraphPainter extends CustomPainter {
     );
 
     // Ligne de courbe
-    final linePath = Path()
-      ..moveTo(points.first.dx, points.first.dy);
+    final linePath = Path()..moveTo(points.first.dx, points.first.dy);
     for (int i = 1; i < points.length; i++) {
       final prev = points[i - 1];
       final curr = points[i];
       final midX = (prev.dx + curr.dx) / 2;
-      linePath.cubicTo(
-          midX, prev.dy, midX, curr.dy, curr.dx, curr.dy);
+      linePath.cubicTo(midX, prev.dy, midX, curr.dy, curr.dx, curr.dy);
     }
 
     canvas.drawPath(
@@ -683,11 +688,11 @@ class _GraphPainter extends CustomPainter {
       final color = provider.riskColor(entries[i].risk);
       final isSelected = i == selectedIndex;
 
-      canvas.drawCircle(p, isSelected ? 7 : 5,
-          Paint()..color = color);
+      canvas.drawCircle(p, isSelected ? 7 : 5, Paint()..color = color);
       if (isSelected) {
         canvas.drawCircle(
-          p, 11,
+          p,
+          11,
           Paint()
             ..color = color.withOpacity(0.25)
             ..style = PaintingStyle.stroke

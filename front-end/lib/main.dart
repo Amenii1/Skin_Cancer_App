@@ -27,6 +27,8 @@ import 'features/booking/booking_screen.dart';
 import 'features/booking/booking_provider.dart';
 import 'features/doctor/doctor_dashboard_screen.dart';
 import 'features/doctor/doctor_dashboard_provider.dart';
+import 'features/doctor/doctor_patients_provider.dart';
+import 'features/doctor/doctor_agenda_provider.dart';
 import 'features/doctor/doctor_patients_screen.dart';
 import 'features/doctor/doctor_agenda_screen.dart';
 import 'features/doctor/doctor_profile_screen.dart';
@@ -121,6 +123,8 @@ class DermaScanApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => BookingProvider()),
         ChangeNotifierProvider(create: (_) => DoctorDashboardProvider()),
+        ChangeNotifierProvider(create: (_) => DoctorPatientsProvider()),
+        ChangeNotifierProvider(create: (_) => DoctorAgendaProvider()),
       ],
       child: MaterialApp.router(
         title: 'DermaScan AI',

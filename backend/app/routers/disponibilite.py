@@ -40,7 +40,7 @@ def add_disponibilite(
 
     return {"message": "Disponibilité ajoutée", "id": dispo.id}
 
-# 👤 voir dispo
+# 👤 voir dispo (libres uniquement)
 @router.get("/{doctor_id}")
 def get_disponibilites(doctor_id: int, db: Session = Depends(get_db)):
     rows = db.query(Disponibilite).filter(
@@ -64,3 +64,54 @@ def get_disponibilites(doctor_id: int, db: Session = Depends(get_db)):
         }
         for d in rows
     ]
+
+# 👨‍⚕️ voir ses propres dispo (toutes)
+@router.get("/doctor/my")
+def get_my_disponibilites(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.role != "doctor":
+        raise HTTPException(status_code=403, detail="Only doctors")
+    
+    doctor = db.query(Dermatologue).filter(Dermatologue.user_id == current_user.id).first()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor profile not found")
+
+    rows = db.query(Disponibilite).filter(Disponibilite.dermatologue_id == doctor.id).all()
+    return [
+        {
+            "id": d.id,
+            "date": d.date.isoformat() if d.date else None,
+            "heure_debut": d.heure_debut.isoformat() if d.heure_debut else None,
+            "heure_fin": d.heure_fin.isoformat() if d.heure_fin else None,
+            "is_reserved": d.is_reserved,
+        }
+        for d in rows
+    ]
+
+# 👨‍⚕️ supprimer dispo
+@router.delete("/{dispo_id}")
+def delete_disponibilite(
+    dispo_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    if current_user.role != "doctor":
+        raise HTTPException(status_code=403, detail="Only doctors")
+    
+    doctor = db.query(Dermatologue).filter(Dermatologue.user_id == current_user.id).first()
+    dispo = db.query(Disponibilite).filter(Disponibilite.id == dispo_id).first()
+
+    if not dispo:
+        raise HTTPException(status_code=404, detail="Disponibilité non trouvée")
+    
+    if dispo.dermatologue_id != doctor.id:
+        raise HTTPException(status_code=403, detail="Not your availability")
+    
+    if dispo.is_reserved:
+        raise HTTPException(status_code=400, detail="Cannot delete a reserved slot")
+
+    db.delete(dispo)
+    db.commit()
+    return {"message": "Disponibilité supprimée"}

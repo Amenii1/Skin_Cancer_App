@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/theme/app_theme.dart';
 import '../auth/auth_provider.dart';
+import 'doctor_dashboard_provider.dart';
 
 class DoctorProfileScreen extends StatefulWidget {
   const DoctorProfileScreen({super.key});
@@ -59,6 +60,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen>
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final user = auth.currentUser;
+    final dashboardProv = context.watch<DoctorDashboardProvider>();
 
     return Scaffold(
       backgroundColor: AppColors.bgSoft,
@@ -66,16 +68,16 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen>
         opacity: _fadeAnim,
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: _buildHeader(context, user)),
+            SliverToBoxAdapter(child: _buildHeader(context, auth, user)),
             SliverPadding(
               padding: const EdgeInsets.all(20),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
                   _buildInfoCard(user),
                   const SizedBox(height: 16),
-                  _buildStatsCard(),
+                  _buildStatsCard(dashboardProv),
                   const SizedBox(height: 16),
-                  _buildPracticeCard(),
+                  _buildPracticeCard(user),
                   const SizedBox(height: 16),
                   _buildSecurityCard(),
                   const SizedBox(height: 16),
@@ -92,7 +94,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen>
   }
 
   // ── Header ────────────────────────────────────────────────
-  Widget _buildHeader(BuildContext context, dynamic user) {
+  Widget _buildHeader(BuildContext context, AuthProvider auth, dynamic user) {
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
@@ -139,7 +141,44 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen>
             ),
           ),
           GestureDetector(
-            onTap: () => setState(() => _editMode = !_editMode),
+            onTap: auth.isLoading
+                ? null
+                : () async {
+                    final auth = context.read<AuthProvider>();
+                    if (_editMode) {
+                      // Save data
+                      final ok = await auth.updateProfile(
+                        name: _nameCtrl.text,
+                        phone: _phoneCtrl.text,
+                        speciality: _specialityCtrl.text,
+                        cabinetAddress: _cabinetCtrl.text,
+                        rppsNumber: user?.rppsNumber,
+                      );
+                      if (ok && mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Profil mis à jour avec succès')),
+                        );
+                        setState(() => _editMode = false);
+                      } else if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(auth.errorMessage ??
+                                  'Erreur lors de la mise à jour')),
+                        );
+                      }
+                    } else {
+                      // Entering edit mode, sync controllers with current user data
+                      final u = auth.currentUser;
+                      if (u != null) {
+                        _nameCtrl.text = u.fullName;
+                        _phoneCtrl.text = u.phone;
+                        _specialityCtrl.text = u.speciality ?? '';
+                        _cabinetCtrl.text = u.cabinetAddress ?? '';
+                      }
+                      setState(() => _editMode = true);
+                    }
+                  },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
@@ -153,16 +192,27 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen>
                       : const Color(0xFF7F77DD).withOpacity(0.25),
                 ),
               ),
-              child: Text(
-                _editMode ? 'Sauvegarder' : 'Modifier',
-                style: TextStyle(
-                  fontFamily: 'Nunito',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color:
-                      _editMode ? AppColors.riskLow : const Color(0xFF7F77DD),
-                ),
-              ),
+              child: auth.isLoading
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            const Color(0xFF7F77DD)),
+                      ),
+                    )
+                  : Text(
+                      _editMode ? 'Sauvegarder' : 'Modifier',
+                      style: TextStyle(
+                        fontFamily: 'Nunito',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: _editMode
+                            ? AppColors.riskLow
+                            : const Color(0xFF7F77DD),
+                      ),
+                    ),
             ),
           ),
         ]),
@@ -351,24 +401,25 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen>
   }
 
   // ── Statistiques cabinet ──────────────────────────────────
-  Widget _buildStatsCard() {
+  Widget _buildStatsCard(DoctorDashboardProvider prov) {
+    final stats = prov.stats;
     return _DoctorSectionCard(
       title: 'Statistiques du cabinet',
       icon: Icons.bar_chart_rounded,
       child: Row(children: [
         _DoctorStat(
-          value: '5',
+          value: '${stats['total_reservations'] ?? 0}',
           label: 'Patients\nactifs',
           color: const Color(0xFF7F77DD),
           icon: Icons.people_rounded,
         ),
         _DoctorStat(
-          value: '3',
+          value: '${stats['total_avis'] ?? 0}',
           label: 'Avis\ndonnés',
           color: AppColors.primary,
           icon: Icons.rate_review_rounded,
         ),
-        _DoctorStat(
+        const _DoctorStat(
           value: '87%',
           label: 'Taux\nsatisfaction',
           color: AppColors.riskLow,
@@ -379,16 +430,14 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen>
   }
 
   // ── Informations cabinet ──────────────────────────────────
-  Widget _buildPracticeCard() {
+  Widget _buildPracticeCard(dynamic user) {
     return _DoctorSectionCard(
       title: 'Mon cabinet',
       icon: Icons.local_hospital_outlined,
       child: Column(children: [
         _DoctorInfoRow(
           label: 'Spécialité',
-          value: _specialityCtrl.text.isEmpty
-              ? 'Dermatologue'
-              : _specialityCtrl.text,
+          value: user?.speciality ?? 'Dermatologue',
           icon: Icons.medical_services_outlined,
           editMode: _editMode,
           controller: _specialityCtrl,
@@ -396,8 +445,7 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen>
         const SizedBox(height: 14),
         _DoctorInfoRow(
           label: 'Adresse du cabinet',
-          value:
-              _cabinetCtrl.text.isEmpty ? 'Non renseignée' : _cabinetCtrl.text,
+          value: user?.cabinetAddress ?? 'Non renseignée',
           icon: Icons.location_on_outlined,
           editMode: _editMode,
           controller: _cabinetCtrl,

@@ -31,20 +31,18 @@ class _ResultScreenState extends State<ResultScreen>
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
-    _fadeAnim = CurvedAnimation(
-        parent: _entryCtrl, curve: Curves.easeOut);
+    _fadeAnim = CurvedAnimation(parent: _entryCtrl, curve: Curves.easeOut);
     _slideAnim = Tween<Offset>(
       begin: const Offset(0, 0.05),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-        parent: _entryCtrl, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(parent: _entryCtrl, curve: Curves.easeOutCubic));
 
     _gaugeCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     );
-    _gaugeAnim = CurvedAnimation(
-        parent: _gaugeCtrl, curve: Curves.easeOutCubic);
+    _gaugeAnim =
+        CurvedAnimation(parent: _gaugeCtrl, curve: Curves.easeOutCubic);
 
     _pulseCtrl = AnimationController(
       vsync: this,
@@ -112,7 +110,9 @@ class _ResultScreenState extends State<ResultScreen>
     return Container(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top + 16,
-        left: 20, right: 20, bottom: 20,
+        left: 20,
+        right: 20,
+        bottom: 20,
       ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -131,7 +131,8 @@ class _ResultScreenState extends State<ResultScreen>
             GestureDetector(
               onTap: () => context.go('/camera'),
               child: Container(
-                width: 40, height: 40,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: AppColors.bgWhite,
                   borderRadius: BorderRadius.circular(12),
@@ -168,13 +169,11 @@ class _ResultScreenState extends State<ResultScreen>
             ),
             // Badge risque
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
                 color: prov.riskColor.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                    color: prov.riskColor.withOpacity(0.3)),
+                border: Border.all(color: prov.riskColor.withOpacity(0.3)),
               ),
               child: Text(
                 '${prov.riskEmoji} ${prov.riskLabel}',
@@ -228,7 +227,8 @@ class _ResultScreenState extends State<ResultScreen>
           animation: Listenable.merge([_gaugeAnim, _pulseCtrl]),
           builder: (_, __) {
             return SizedBox(
-              width: 200, height: 120,
+              width: 200,
+              height: 120,
               child: Stack(alignment: Alignment.center, children: [
                 // Arc gauge
                 CustomPaint(
@@ -290,7 +290,8 @@ class _ResultScreenState extends State<ResultScreen>
       ),
       child: Row(children: [
         Container(
-          width: 44, height: 44,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(
             color: AppColors.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
@@ -389,13 +390,14 @@ class _ResultScreenState extends State<ResultScreen>
           ]),
           const SizedBox(height: 14),
           Wrap(
-            spacing: 8, runSpacing: 8,
+            spacing: 8,
+            runSpacing: 8,
             children: prov.detectedFeatures.map((f) {
               final ok = f['ok'] as bool;
               final color = ok ? AppColors.riskLow : AppColors.riskHigh;
               return Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(10),
@@ -403,8 +405,7 @@ class _ResultScreenState extends State<ResultScreen>
                 ),
                 child: Row(mainAxisSize: MainAxisSize.min, children: [
                   Icon(
-                    ok ? Icons.check_circle_rounded
-                        : Icons.warning_rounded,
+                    ok ? Icons.check_circle_rounded : Icons.warning_rounded,
                     color: color,
                     size: 14,
                   ),
@@ -458,7 +459,7 @@ class _ResultScreenState extends State<ResultScreen>
           Expanded(
             child: Text(
               prov.riskDescription,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'Nunito',
                 fontSize: 14,
                 color: AppColors.textPrimary,
@@ -488,57 +489,58 @@ class _ResultScreenState extends State<ResultScreen>
         ),
         const SizedBox(height: 12),
         ...prov.recommendations.map((rec) => Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: AppColors.bgWhite,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.06),
-                blurRadius: 12,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(children: [
-            Container(
-              width: 40, height: 40,
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: rec.color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(rec.icon, color: rec.color, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    rec.title,
-                    style: const TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  Text(
-                    rec.description,
-                    style: const TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                    ),
+                color: AppColors.bgWhite,
+                borderRadius: BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.primary.withOpacity(0.06),
+                    blurRadius: 12,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
-            ),
-            Icon(Icons.arrow_forward_ios_rounded,
-                color: AppColors.textHint, size: 14),
-          ]),
-        )),
+              child: Row(children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: rec.color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(rec.icon, color: rec.color, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        rec.title,
+                        style: const TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      Text(
+                        rec.description,
+                        style: const TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios_rounded,
+                    color: AppColors.textHint, size: 14),
+              ]),
+            )),
       ],
     );
   }
@@ -648,11 +650,12 @@ class _GaugePainter extends CustomPainter {
 
     // Labels min/max
     _drawText(canvas, '0%', Offset(16, cy + 8), 11, AppColors.textHint);
-    _drawText(canvas, '100%', Offset(size.width - 36, cy + 8), 11, AppColors.textHint);
+    _drawText(canvas, '100%', Offset(size.width - 36, cy + 8), 11,
+        AppColors.textHint);
   }
 
-  void _drawText(Canvas canvas, String text, Offset pos,
-      double fontSize, Color color) {
+  void _drawText(
+      Canvas canvas, String text, Offset pos, double fontSize, Color color) {
     final tp = TextPainter(
       text: TextSpan(
         text: text,
