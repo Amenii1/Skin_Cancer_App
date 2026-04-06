@@ -257,10 +257,10 @@ class _DashboardScreenState extends State<DashboardScreen>
       Row(children: [
         Expanded(
           child: _QuickBtn(
-            icon: Icons.medical_services_rounded,
-            label: 'Trouver un\ndermatologue',
+            icon: Icons.folder_shared_rounded,
+            label: 'Dossier\nmédical',
             color: AppColors.primary,
-            onTap: () => context.go('/dermatologist'),
+            onTap: () => context.go('/medical-record'),
           ),
         ),
         const SizedBox(width: 12),

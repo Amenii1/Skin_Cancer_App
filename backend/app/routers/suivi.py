@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import case
@@ -21,6 +23,18 @@ def _ordered_images(db: Session, user_id: int):
     )
 
 
+def _symptoms_for(img: Image) -> list[str]:
+    if not img.symptoms_json:
+        return []
+    try:
+        data = json.loads(img.symptoms_json)
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(data, list):
+        return []
+    return [str(item) for item in data if str(item).strip()]
+
+
 @router.get("/timeline")
 def timeline(
     db: Session = Depends(get_db),
@@ -42,6 +56,9 @@ def timeline(
                 "uploaded_at": img.created_at.isoformat() if img.created_at else None,
                 "result": img.result,
                 "confidence": img.confidence,
+                "body_zone_id": img.body_zone_id,
+                "body_zone_label": img.body_zone_label,
+                "symptoms": _symptoms_for(img),
             }
             for img in imgs
         ]
@@ -70,6 +87,8 @@ def compare(
             else None,
             "result": newest.result,
             "confidence": newest.confidence,
+            "body_zone_label": newest.body_zone_label,
+            "symptoms": _symptoms_for(newest),
         },
         "previous": {
             "image_id": previous.id,
@@ -78,5 +97,7 @@ def compare(
             else None,
             "result": previous.result,
             "confidence": previous.confidence,
+            "body_zone_label": previous.body_zone_label,
+            "symptoms": _symptoms_for(previous),
         },
     }

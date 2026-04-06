@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float, Date
+from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
@@ -13,6 +13,9 @@ class Image(Base):
     # Date déclarée par le patient (prise de vue / observation de la lésion)
     observation_date = Column(Date, nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    body_zone_id = Column(String, nullable=True, index=True)
+    body_zone_label = Column(String, nullable=True)
+    symptoms_json = Column(Text, nullable=True)
     result = Column(String, nullable=True)
     confidence = Column(Float, nullable=True)
 

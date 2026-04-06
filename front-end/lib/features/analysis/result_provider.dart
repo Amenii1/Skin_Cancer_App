@@ -22,12 +22,16 @@ class ResultProvider extends ChangeNotifier {
   double _riskPercent = 0.62;
   double _confidence = 0.89;
   String _zone = 'Dos';
+  List<String> _symptoms = const [];
+  int? _imageId;
   bool _showDetails = false;
 
   ResultRisk get risk => _risk;
   double get riskPercent => _riskPercent;
   double get confidence => _confidence;
   String get zone => _zone;
+  List<String> get symptoms => List.unmodifiable(_symptoms);
+  int? get imageId => _imageId;
   bool get showDetails => _showDetails;
 
   void toggleDetails() {
@@ -181,8 +185,11 @@ class ResultProvider extends ChangeNotifier {
   }
 
   void setFromPrediction({
+    int? imageId,
     required String result,
     required double confidence,
+    String? zoneLabel,
+    List<String>? symptoms,
   }) {
     final normalized = result.trim().toLowerCase();
     switch (normalized) {
@@ -205,6 +212,11 @@ class ResultProvider extends ChangeNotifier {
     }
 
     _confidence = confidence;
+    _imageId = imageId;
+    if (zoneLabel != null && zoneLabel.trim().isNotEmpty) {
+      _zone = zoneLabel.trim();
+    }
+    _symptoms = symptoms ?? const [];
     _showDetails = false;
     notifyListeners();
   }
