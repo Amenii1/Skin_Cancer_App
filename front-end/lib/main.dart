@@ -11,7 +11,7 @@ import 'features/auth/register_screen.dart';
 import 'features/auth/auth_provider.dart';
 import 'features/dashboard/dashboard_screen.dart';
 import 'features/dashboard/dashboard_provider.dart';
-import 'features/camera/camera_screen.dart';
+import 'features/camera/camera_intake_screen.dart';
 import 'features/camera/camera_provider.dart';
 import 'features/analysis/result_screen.dart';
 import 'features/analysis/result_provider.dart';
@@ -32,6 +32,8 @@ import 'features/doctor/doctor_agenda_provider.dart';
 import 'features/doctor/doctor_patients_screen.dart';
 import 'features/doctor/doctor_agenda_screen.dart';
 import 'features/doctor/doctor_profile_screen.dart';
+import 'features/medical_record/medical_record_provider.dart';
+import 'features/medical_record/medical_record_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,7 +68,8 @@ final GoRouter _router = GoRouter(
             const NoTransitionPage(child: DashboardScreen())),
     GoRoute(
         path: '/camera',
-        pageBuilder: (_, __) => const NoTransitionPage(child: CameraScreen())),
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: CameraIntakeScreen())),
     GoRoute(
         path: '/result',
         pageBuilder: (_, __) => const NoTransitionPage(child: ResultScreen())),
@@ -87,6 +90,10 @@ final GoRouter _router = GoRouter(
     GoRoute(
         path: '/booking',
         pageBuilder: (_, __) => const NoTransitionPage(child: BookingScreen())),
+    GoRoute(
+        path: '/medical-record',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: MedicalRecordScreen())),
     GoRoute(
         path: '/doctor-dashboard',
         pageBuilder: (_, __) =>
@@ -125,6 +132,7 @@ class DermaScanApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DoctorDashboardProvider()),
         ChangeNotifierProvider(create: (_) => DoctorPatientsProvider()),
         ChangeNotifierProvider(create: (_) => DoctorAgendaProvider()),
+        ChangeNotifierProvider(create: (_) => MedicalRecordProvider()),
       ],
       child: MaterialApp.router(
         title: 'DermaScan AI',

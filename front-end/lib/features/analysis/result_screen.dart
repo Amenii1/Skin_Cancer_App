@@ -550,7 +550,7 @@ class _ResultScreenState extends State<ResultScreen>
     return Column(children: [
       // Bouton principal
       GestureDetector(
-        onTap: () => context.go('/dashboard'),
+        onTap: () => context.go('/medical-record'),
         child: Container(
           height: 56,
           decoration: BoxDecoration(

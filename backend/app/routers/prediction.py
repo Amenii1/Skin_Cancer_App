@@ -50,6 +50,8 @@ def predict(image_id: int, db: Session = Depends(get_db)):
         "image_id": image_id,
         "result": result,
         "confidence": confidence,
+        "body_zone_id": image.body_zone_id,
+        "body_zone_label": image.body_zone_label,
         "observation_date": image.observation_date.isoformat()
         if image.observation_date
         else None,

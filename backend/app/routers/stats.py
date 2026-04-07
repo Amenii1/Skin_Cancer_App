@@ -90,6 +90,7 @@ def dashboard_stats(
                 "created_at": img.created_at.isoformat() if img.created_at else None,
                 "result": img.result,
                 "confidence": img.confidence,
+                "body_zone_label": img.body_zone_label,
             }
             for img in preview
         ]

@@ -20,6 +20,17 @@ def run_sqlite_migrations() -> None:
             if "date_naissance" not in cols:
                 conn.execute(text("ALTER TABLE patients ADD COLUMN date_naissance DATE"))
                 conn.commit()
+        if insp.has_table("images"):
+            cols = {c["name"] for c in insp.get_columns("images")}
+            if "body_zone_id" not in cols:
+                conn.execute(text("ALTER TABLE images ADD COLUMN body_zone_id VARCHAR"))
+                conn.commit()
+            if "body_zone_label" not in cols:
+                conn.execute(text("ALTER TABLE images ADD COLUMN body_zone_label VARCHAR"))
+                conn.commit()
+            if "symptoms_json" not in cols:
+                conn.execute(text("ALTER TABLE images ADD COLUMN symptoms_json TEXT"))
+                conn.commit()
         if insp.has_table("dermatologues"):
             cols = {c["name"] for c in insp.get_columns("dermatologues")}
             if "numero_rpps" not in cols:

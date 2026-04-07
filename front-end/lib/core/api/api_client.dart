@@ -128,6 +128,7 @@ class ApiClient {
     required String path,
     required Uint8List imageBytes,
     required String observationDate, // YYYY-MM-DD
+    Map<String, String>? fields,
     String fileFieldName = 'file',
     String fileName = 'lesion.jpg',
   }) async {
@@ -135,6 +136,9 @@ class ApiClient {
     final request = http.MultipartRequest('POST', uri);
     request.headers.addAll(_defaultHeaders());
     request.fields['observation_date'] = observationDate;
+    if (fields != null) {
+      request.fields.addAll(fields);
+    }
     request.files.add(
       http.MultipartFile.fromBytes(
         fileFieldName,
