@@ -1,27 +1,12 @@
-import hashlib
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_db
 from app.models.image import Image
 from app.services.notification_service import maybe_create_high_risk_notification
+from app.services.ai_service import ai_service
 
 router = APIRouter(prefix="/prediction", tags=["Prediction"])
-
-
-def _simulate_model_output(image_id: int) -> tuple[str, float]:
-    """
-    Simulation déterministe (remplacer par l’inférence réelle du modèle).
-    Produit un mélange de résultats pour tester alertes + suivi.
-    """
-    h = int(hashlib.md5(str(image_id).encode()).hexdigest(), 16)
-    r = h % 100
-    if r < 45:
-        return "benign", 0.82 + (h % 15) / 100.0
-    if r < 75:
-        return "melanoma", 0.68 + (h % 25) / 100.0
-    return "basal_cell_carcinoma", 0.66 + (h % 20) / 100.0
 
 
 @router.post("/{image_id}")
@@ -31,8 +16,10 @@ def predict(image_id: int, db: Session = Depends(get_db)):
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
 
-    result, confidence = _simulate_model_output(image_id)
+    # Inférence réelle avec le modèle skin_cancer_model.h5
+    result, confidence = ai_service.predict(image.path)
 
+    # Sauvegarder les résultats
     image.result = result
     image.confidence = confidence
 
