@@ -634,6 +634,25 @@ class _GraphPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (entries.isEmpty) return;
+    if (entries.length == 1) {
+      final entry = entries.first;
+      final point = Offset(
+        size.width / 2,
+        size.height - entry.riskPercent * size.height * 0.85,
+      );
+      final color = provider.riskColor(entry.risk);
+
+      canvas.drawCircle(point, 7, Paint()..color = color);
+      canvas.drawCircle(
+        point,
+        11,
+        Paint()
+          ..color = color.withOpacity(0.25)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2,
+      );
+      return;
+    }
 
     final w = size.width;
     final h = size.height;

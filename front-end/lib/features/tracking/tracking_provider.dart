@@ -54,22 +54,34 @@ class TrackingProvider extends ChangeNotifier {
             final confidence = (m['confidence'] is num)
                 ? (m['confidence'] as num).toDouble()
                 : 0.0;
-            final risk = _mapRisk(m['result']?.toString() ?? '');
+            final result = m['result']?.toString() ?? '';
+            final risk = _mapRisk(result);
             final id = m['image_id']?.toString() ?? '0';
+            final symptomsRaw = (m['symptoms'] as List?) ?? const [];
             return TrackingEntry(
               id: id,
               date: date,
               risk: risk,
               riskPercent: confidence,
-              notes: 'Résultat: ${m['result'] ?? 'inconnu'}',
-              symptoms: const ['Suivi automatique'],
+              notes: 'Résultat: ${result.isEmpty ? 'inconnu' : result}',
+              symptoms: symptomsRaw.isEmpty
+                  ? const ['Aucun symptôme renseigné']
+                  : symptomsRaw.map((item) => item.toString()).toList(),
             );
           }),
         );
 
       if (entries.isNotEmpty) {
         lesionId = 'L${entries.first.id}';
+        final firstPoint = (points.first as Map).cast<String, dynamic>();
+        final zoneLabel = firstPoint['body_zone_label']?.toString() ?? '';
+        lesionZone = zoneLabel.trim().isNotEmpty
+            ? zoneLabel
+            : 'Suivi chronologique';
         _selectedEntry = 0;
+      } else {
+        lesionId = 'L1';
+        lesionZone = 'Suivi chronologique';
       }
       notifyListeners();
     } catch (_) {
@@ -119,13 +131,15 @@ class TrackingProvider extends ChangeNotifier {
   }
 
   TrackingRisk _mapRisk(String result) {
-    switch (result) {
-      case 'melanoma':
-        return TrackingRisk.high;
-      case 'basal_cell_carcinoma':
-        return TrackingRisk.medium;
-      default:
-        return TrackingRisk.low;
+    final normalized = result.trim().toLowerCase();
+    if (normalized.contains('melanoma')) {
+      return TrackingRisk.high;
     }
+    if (normalized.contains('basal cell carcinoma') ||
+        normalized.contains('actinic keratoses') ||
+        normalized.contains('keratosis')) {
+      return TrackingRisk.medium;
+    }
+    return TrackingRisk.low;
   }
 }

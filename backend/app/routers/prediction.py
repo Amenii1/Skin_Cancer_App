@@ -16,8 +16,18 @@ def predict(image_id: int, db: Session = Depends(get_db)):
     if not image:
         raise HTTPException(status_code=404, detail="Image not found")
 
+    is_loaded, model_error = ai_service.get_model_status()
+    if not is_loaded:
+        raise HTTPException(
+            status_code=503,
+            detail=f"AI model unavailable: {model_error}",
+        )
+
     # Inférence réelle avec le modèle skin_cancer_model.h5
-    result, confidence = ai_service.predict(image.path)
+    try:
+        result, confidence = ai_service.predict(image.path)
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     # Sauvegarder les résultats
     image.result = result
