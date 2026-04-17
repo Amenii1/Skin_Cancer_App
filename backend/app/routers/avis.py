@@ -8,7 +8,9 @@ from app.core.dependencies import get_current_user, get_db
 from app.models.avis import Avis
 from app.models.dermatologue import Dermatologue
 from app.models.image import Image
+from app.models.patient import Patient
 from app.models.utilisateur import Utilisateur
+from app.services.notification_service import create_doctor_avis_notification
 
 router = APIRouter(prefix="/avis", tags=["Avis"])
 
@@ -47,7 +49,18 @@ def give_avis(
         .first()
     )
     if existing:
-        raise HTTPException(status_code=400, detail="Avis already submitted for this image")
+        existing.commentaire = payload.commentaire
+        existing.diagnostic = payload.diagnostic
+        existing.rating = payload.rating
+        create_doctor_avis_notification(
+            db,
+            image=image,
+            doctor=doctor,
+            is_update=True,
+        )
+        db.commit()
+        db.refresh(existing)
+        return {"message": "Avis updated", "avis_id": existing.id}
 
     new_avis = Avis(
         image_id=image_id,
@@ -58,6 +71,12 @@ def give_avis(
     )
 
     db.add(new_avis)
+    create_doctor_avis_notification(
+        db,
+        image=image,
+        doctor=doctor,
+        is_update=False,
+    )
     db.commit()
     db.refresh(new_avis)
 
@@ -110,19 +129,24 @@ def get_doctor_avis(
     out = []
     for a in rows:
         img = db.query(Image).filter(Image.id == a.image_id).first()
+        patient_id = None
         patient_name = None
         patient_email = None
         image_url = None
         if img:
             user = db.query(Utilisateur).filter(Utilisateur.id == img.user_id).first()
+            patient = db.query(Patient).filter(Patient.user_id == img.user_id).first()
             if user:
                 patient_name = user.nom
                 patient_email = user.email
+            if patient:
+                patient_id = patient.id
             image_url = f"{request.base_url}uploads/{os.path.basename(img.path)}"
         out.append(
             {
                 "id": a.id,
                 "image_id": a.image_id,
+                "patient_id": patient_id,
                 "dermatologue_id": a.dermatologue_id,
                 "commentaire": a.commentaire,
                 "diagnostic": a.diagnostic,

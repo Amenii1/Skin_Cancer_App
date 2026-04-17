@@ -6,14 +6,18 @@ from app.core.database import engine
 
 
 def run_sqlite_migrations() -> None:
-    if engine.dialect.name != "sqlite":
-        return
     insp = inspect(engine)
     with engine.connect() as conn:
         if insp.has_table("users"):
             cols = {c["name"] for c in insp.get_columns("users")}
             if "telephone" not in cols:
                 conn.execute(text("ALTER TABLE users ADD COLUMN telephone VARCHAR"))
+                conn.commit()
+            if "reset_code" not in cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN reset_code VARCHAR"))
+                conn.commit()
+            if "reset_code_expires_at" not in cols:
+                conn.execute(text("ALTER TABLE users ADD COLUMN reset_code_expires_at TIMESTAMP"))
                 conn.commit()
         if insp.has_table("patients"):
             cols = {c["name"] for c in insp.get_columns("patients")}
@@ -36,5 +40,12 @@ def run_sqlite_migrations() -> None:
             if "numero_rpps" not in cols:
                 conn.execute(
                     text("ALTER TABLE dermatologues ADD COLUMN numero_rpps VARCHAR")
+                )
+                conn.commit()
+        if insp.has_table("notifications"):
+            cols = {c["name"] for c in insp.get_columns("notifications")}
+            if "doctor_id" not in cols:
+                conn.execute(
+                    text("ALTER TABLE notifications ADD COLUMN doctor_id INTEGER")
                 )
                 conn.commit()

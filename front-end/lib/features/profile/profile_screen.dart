@@ -6,7 +6,9 @@ import '../auth/auth_provider.dart';
 import 'profile_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final bool focusAppointments;
+
+  const ProfileScreen({super.key, this.focusAppointments = false});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -108,20 +110,37 @@ class _ProfileScreenState extends State<ProfileScreen>
             SliverPadding(
               padding: const EdgeInsets.all(20),
               sliver: SliverList(
-                delegate: SliverChildListDelegate([
-                  _buildProfileCard(prov),
-                  const SizedBox(height: 16),
-                  _buildStatsCard(prov),
-                  const SizedBox(height: 16),
-                  _buildAppointmentsCard(context, prov),
-                  const SizedBox(height: 16),
-                  _buildSecurityCard(prov),
-                  const SizedBox(height: 16),
-                  _buildDataCard(context),
-                  const SizedBox(height: 16),
-                  _buildLogoutButton(context),
-                  const SizedBox(height: 40),
-                ]),
+                delegate: SliverChildListDelegate(
+                  widget.focusAppointments
+                      ? [
+                          _buildAppointmentsCard(context, prov),
+                          const SizedBox(height: 16),
+                          _buildProfileCard(prov),
+                          const SizedBox(height: 16),
+                          _buildStatsCard(prov),
+                          const SizedBox(height: 16),
+                          _buildSecurityCard(prov),
+                          const SizedBox(height: 16),
+                          _buildDataCard(context),
+                          const SizedBox(height: 16),
+                          _buildLogoutButton(context),
+                          const SizedBox(height: 40),
+                        ]
+                      : [
+                          _buildProfileCard(prov),
+                          const SizedBox(height: 16),
+                          _buildStatsCard(prov),
+                          const SizedBox(height: 16),
+                          _buildAppointmentsCard(context, prov),
+                          const SizedBox(height: 16),
+                          _buildSecurityCard(prov),
+                          const SizedBox(height: 16),
+                          _buildDataCard(context),
+                          const SizedBox(height: 16),
+                          _buildLogoutButton(context),
+                          const SizedBox(height: 40),
+                        ],
+                ),
               ),
             ),
           ],

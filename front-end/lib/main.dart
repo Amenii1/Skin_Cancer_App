@@ -32,8 +32,12 @@ import 'features/doctor/doctor_agenda_provider.dart';
 import 'features/doctor/doctor_patients_screen.dart';
 import 'features/doctor/doctor_agenda_screen.dart';
 import 'features/doctor/doctor_profile_screen.dart';
+import 'features/doctor/doctor_patient_detail_screen.dart';
+import 'features/doctor/doctor_patient_detail_provider.dart';
 import 'features/medical_record/medical_record_provider.dart';
 import 'features/medical_record/medical_record_screen.dart';
+import 'features/notifications/patient_notifications_provider.dart';
+import 'features/notifications/patient_notifications_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -86,14 +90,26 @@ final GoRouter _router = GoRouter(
             const NoTransitionPage(child: DermatologistScreen())),
     GoRoute(
         path: '/profile',
-        pageBuilder: (_, __) => const NoTransitionPage(child: ProfileScreen())),
+        pageBuilder: (_, state) {
+          final focusAppointments =
+              state.uri.queryParameters['focus'] == 'appointments';
+          return NoTransitionPage(
+              child: ProfileScreen(focusAppointments: focusAppointments));
+        }),
     GoRoute(
         path: '/booking',
         pageBuilder: (_, __) => const NoTransitionPage(child: BookingScreen())),
     GoRoute(
         path: '/medical-record',
+        pageBuilder: (_, state) {
+          final imageId = state.uri.queryParameters['imageId'];
+          return NoTransitionPage(
+              child: MedicalRecordScreen(highlightImageId: imageId));
+        }),
+    GoRoute(
+        path: '/notifications',
         pageBuilder: (_, __) =>
-            const NoTransitionPage(child: MedicalRecordScreen())),
+            const NoTransitionPage(child: PatientNotificationsScreen())),
     GoRoute(
         path: '/doctor-dashboard',
         pageBuilder: (_, __) =>
@@ -110,6 +126,13 @@ final GoRouter _router = GoRouter(
         path: '/doctor-profile',
         pageBuilder: (_, __) =>
             const NoTransitionPage(child: DoctorProfileScreen())),
+    GoRoute(
+        path: '/doctor-patient-detail/:patientId',
+        pageBuilder: (context, state) {
+          final id = state.pathParameters['patientId']!;
+          return NoTransitionPage(
+              child: DoctorPatientDetailScreen(patientId: id));
+        }),
   ],
 );
 
@@ -132,7 +155,9 @@ class DermaScanApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DoctorDashboardProvider()),
         ChangeNotifierProvider(create: (_) => DoctorPatientsProvider()),
         ChangeNotifierProvider(create: (_) => DoctorAgendaProvider()),
+        ChangeNotifierProvider(create: (_) => DoctorPatientDetailProvider()),
         ChangeNotifierProvider(create: (_) => MedicalRecordProvider()),
+        ChangeNotifierProvider(create: (_) => PatientNotificationsProvider()),
       ],
       child: MaterialApp.router(
         title: 'DermaScan AI',

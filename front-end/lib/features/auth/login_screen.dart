@@ -60,6 +60,117 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  Future<void> _showForgotPasswordFlow() async {
+    final auth = context.read<AuthProvider>();
+    final emailCtrl = TextEditingController(text: _emailCtrl.text.trim());
+    final codeCtrl = TextEditingController();
+    final newPassCtrl = TextEditingController();
+
+    final resetResp = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Mot de passe oublie'),
+        content: TextField(
+          controller: emailCtrl,
+          keyboardType: TextInputType.emailAddress,
+          decoration: const InputDecoration(labelText: 'Votre email'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final resp = await auth.requestPasswordReset(
+                email: emailCtrl.text.trim(),
+              );
+              if (!mounted) return;
+              Navigator.pop(context, resp);
+            },
+            child: const Text('Envoyer'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted || resetResp == null) return;
+
+    final devCode = resetResp['reset_code']?.toString();
+    if (devCode != null && devCode.isNotEmpty) {
+      codeCtrl.text = devCode;
+      _emailCtrl.text = emailCtrl.text.trim();
+    }
+
+    final changed = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Reinitialiser le mot de passe'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (devCode != null && devCode.isNotEmpty)
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.08),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Code de test: $devCode',
+                  style: const TextStyle(
+                    fontFamily: 'Nunito',
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ),
+            TextField(
+              controller: codeCtrl,
+              decoration: const InputDecoration(labelText: 'Code'),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: newPassCtrl,
+              obscureText: true,
+              decoration:
+                  const InputDecoration(labelText: 'Nouveau mot de passe'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final ok = await auth.resetPassword(
+                email: emailCtrl.text.trim(),
+                code: codeCtrl.text.trim(),
+                newPassword: newPassCtrl.text,
+              );
+              if (!mounted) return;
+              Navigator.pop(context, ok);
+            },
+            child: const Text('Valider'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted) return;
+    if (changed == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mot de passe reinitialise avec succes')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,7 +331,7 @@ class _LoginScreenState extends State<LoginScreen>
           Align(
             alignment: Alignment.centerRight,
             child: GestureDetector(
-              onTap: () {},
+              onTap: _showForgotPasswordFlow,
               child: const Text('Mot de passe oublié ?',
                   style: TextStyle(
                     fontFamily: 'Nunito',

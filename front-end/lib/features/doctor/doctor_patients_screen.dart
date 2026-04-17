@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/theme/app_theme.dart';
 import '../auth/auth_provider.dart';
 import 'doctor_patients_provider.dart';
@@ -360,119 +361,133 @@ class _PatientCard extends StatelessWidget {
   final PatientInfo p;
   const _PatientCard({required this.p});
 
+  Future<void> _openMail() async {
+    if (p.email.isEmpty) return;
+    final uri = Uri(
+      scheme: 'mailto',
+      path: p.email,
+      queryParameters: {'subject': 'Suivi medical'},
+    );
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     final riskColor = p.riskColor;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.bgWhite,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(children: [
-        Row(children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF7F77DD).withOpacity(0.8),
-                  const Color(0xFF534AB7).withOpacity(0.8),
+    return GestureDetector(
+      onTap: () => context.push('/doctor-patient-detail/${p.id}'),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.bgWhite,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppColors.border),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(children: [
+          Row(children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF7F77DD).withOpacity(0.8),
+                    const Color(0xFF534AB7).withOpacity(0.8),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Center(
+                child: Text(p.initials,
+                    style: const TextStyle(
+                      fontFamily: 'Nunito',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                    )),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(p.name,
+                      style: const TextStyle(
+                        fontFamily: 'Nunito',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textPrimary,
+                      )),
+                  Text(
+                    '${p.lesionCount} lésion(s) · ${p.ville}',
+                    style: const TextStyle(
+                      fontFamily: 'Nunito',
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  Text('Dernière visite: ${p.lastVisit}',
+                      style: const TextStyle(
+                        fontFamily: 'Nunito',
+                        fontSize: 11,
+                        color: AppColors.textHint,
+                      )),
                 ],
               ),
-              borderRadius: BorderRadius.circular(13),
             ),
-            child: Center(
-              child: Text(p.initials,
-                  style: const TextStyle(
-                    fontFamily: 'Nunito',
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  )),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(p.name,
-                    style: const TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textPrimary,
-                    )),
-                Text(
-                  '${p.lesionCount} lésion(s) · ${p.ville}',
-                  style: const TextStyle(
-                    fontFamily: 'Nunito',
-                    fontSize: 12,
-                    color: AppColors.textSecondary,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: riskColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
+                  child: Text(p.riskLevel,
+                      style: TextStyle(
+                        fontFamily: 'Nunito',
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: riskColor,
+                      )),
                 ),
-                Text('Dernière visite: ${p.lastVisit}',
-                    style: const TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 11,
-                      color: AppColors.textHint,
-                    )),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: riskColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+          ]),
+          const SizedBox(height: 12),
+          const Divider(color: AppColors.border, height: 1),
+          const SizedBox(height: 10),
+          Row(children: [
+            if (p.phone.isNotEmpty)
+              Expanded(
+                child: _PatientActionBtn(
+                  icon: Icons.phone_outlined,
+                  label: p.phone,
+                  color: AppColors.riskLow,
                 ),
-                child: Text(p.riskLevel,
-                    style: TextStyle(
-                      fontFamily: 'Nunito',
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: riskColor,
-                    )),
               ),
-            ],
-          ),
-        ]),
-        const SizedBox(height: 12),
-        const Divider(color: AppColors.border, height: 1),
-        const SizedBox(height: 10),
-        Row(children: [
-          if (p.phone.isNotEmpty)
+            if (p.phone.isNotEmpty) const SizedBox(width: 10),
             Expanded(
               child: _PatientActionBtn(
-                icon: Icons.phone_outlined,
-                label: p.phone,
-                color: AppColors.riskLow,
+                icon: Icons.email_outlined,
+                label: 'Envoyer email',
+                color: const Color(0xFF7F77DD),
+                onTap: _openMail,
               ),
             ),
-          if (p.phone.isNotEmpty) const SizedBox(width: 10),
-          const Expanded(
-            child: _PatientActionBtn(
-              icon: Icons.email_outlined,
-              label: 'Envoyer email',
-              color: Color(0xFF7F77DD),
-            ),
-          ),
+          ]),
         ]),
-      ]),
+      ),
     );
   }
 }
@@ -481,35 +496,40 @@ class _PatientActionBtn extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final VoidCallback? onTap;
   const _PatientActionBtn({
     required this.icon,
     required this.label,
     required this.color,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.07),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: color.withOpacity(0.2)),
-      ),
-      child: Row(children: [
-        Icon(icon, color: color, size: 14),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Text(label,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontFamily: 'Nunito',
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: color,
-              )),
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.07),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withOpacity(0.2)),
         ),
-      ]),
+        child: Row(children: [
+          Icon(icon, color: color, size: 14),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(label,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: 'Nunito',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                )),
+          ),
+        ]),
+      ),
     );
   }
 }

@@ -76,6 +76,24 @@ class ApiClient {
     return _handleResponse(res);
   }
 
+  Future<Map<String, dynamic>> patchJson(
+    String path, {
+    required Map<String, dynamic> body,
+  }) async {
+    final uri = _uri(path);
+    final res = await http
+        .patch(
+          uri,
+          headers: _defaultHeaders(extraHeaders: {
+            'Content-Type': 'application/json',
+          }),
+          body: jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: 30));
+
+    return _handleResponse(res);
+  }
+
   Future<Map<String, dynamic>> deleteJson(String path) async {
     final uri = _uri(path);
     final res = await http

@@ -42,6 +42,7 @@ class DashboardProvider extends ChangeNotifier {
   int totalLesions = 0;
   RiskLevel globalRisk = RiskLevel.low;
   int daysSinceLastScan = 0;
+  int unreadNotifications = 0;
 
   final List<LesionRecord> recentLesions = [];
   final List<ReminderItem> reminders = [];
@@ -102,6 +103,8 @@ class DashboardProvider extends ChangeNotifier {
       }
 
       totalLesions = (stats['total_lesions'] as num?)?.toInt() ?? 0;
+      unreadNotifications =
+          (stats['unread_notifications'] as num?)?.toInt() ?? 0;
       final days = stats['days_since_last_scan'];
       if (days is num) {
         daysSinceLastScan = days.toInt();

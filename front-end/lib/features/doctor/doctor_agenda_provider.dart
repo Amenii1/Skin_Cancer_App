@@ -7,8 +7,12 @@ class DoctorSlot {
   final String time;
   final bool isReserved;
   final String? reservationId;
+  final String? patientId;
   final String? status;
   final String? patientName;
+  final String? patientEmail;
+  final String? patientPhone;
+  final String? patientVille;
   final String? patientInitials;
   final String? reason;
   final String? riskLevel;
@@ -20,8 +24,12 @@ class DoctorSlot {
     required this.time,
     required this.isReserved,
     this.reservationId,
+    this.patientId,
     this.status,
     this.patientName,
+    this.patientEmail,
+    this.patientPhone,
+    this.patientVille,
     this.patientInitials,
     this.reason,
     this.riskLevel,
@@ -74,6 +82,12 @@ class DoctorAgendaProvider extends ChangeNotifier {
         }
 
         String? patientName = res?['patient_name']?.toString();
+        String? riskLabel = res?['patient_risk']?.toString() ?? 'Faible';
+        Color riskColor = Colors.blue;
+        if (riskLabel == 'Élevé') riskColor = const Color(0xFFEF4444);
+        if (riskLabel == 'Modéré') riskColor = const Color(0xFFF59E0B);
+        if (riskLabel == 'Faible') riskColor = const Color(0xFF10B981);
+
         String? initials;
         if (patientName != null) {
           final parts = patientName.split(' ');
@@ -90,12 +104,16 @@ class DoctorAgendaProvider extends ChangeNotifier {
           time: timeFormatted,
           isReserved: isReserved,
           reservationId: res?['id']?.toString(),
+          patientId: res?['patient_id']?.toString(),
           status: res?['status']?.toString(),
           patientName: patientName,
+          patientEmail: res?['patient_email']?.toString(),
+          patientPhone: res?['patient_phone']?.toString(),
+          patientVille: res?['patient_ville']?.toString(),
           patientInitials: initials,
           reason: 'Consultation',
-          riskLevel: 'Normal',
-          riskColor: Colors.blue,
+          riskLevel: riskLabel,
+          riskColor: riskColor,
         );
       }).toList();
 

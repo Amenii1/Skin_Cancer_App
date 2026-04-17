@@ -9,10 +9,14 @@ enum DiagnosticStatus { pending, reviewed }
 
 class PatientAppointment {
   final String id;
+  final String patientId;
   final String patientName;
   final String patientInitials;
   final String reason;
   final DateTime dateTime;
+  final String patientEmail;
+  final String patientPhone;
+  final String patientVille;
   final String riskLevel;
   final Color riskColor;
   AppointmentStatus status;
@@ -20,10 +24,14 @@ class PatientAppointment {
 
   PatientAppointment({
     required this.id,
+    required this.patientId,
     required this.patientName,
     required this.patientInitials,
     required this.reason,
     required this.dateTime,
+    required this.patientEmail,
+    required this.patientPhone,
+    required this.patientVille,
     required this.riskLevel,
     required this.riskColor,
     this.status = AppointmentStatus.pending,
@@ -33,6 +41,7 @@ class PatientAppointment {
 
 class PatientDiagnostic {
   final String id;
+  final String patientId;
   final String patientName;
   final String patientInitials;
   final String zone;
@@ -47,6 +56,7 @@ class PatientDiagnostic {
 
   PatientDiagnostic({
     required this.id,
+    required this.patientId,
     required this.patientName,
     required this.patientInitials,
     required this.zone,
@@ -120,16 +130,24 @@ class DoctorDashboardProvider extends ChangeNotifier {
             final dt = DateTime.tryParse(m['date_rdv']?.toString() ?? '') ??
                 DateTime.now();
             final status = _fromStatus(m['status']?.toString() ?? 'pending');
-            final pname =
-                m['patient_name']?.toString() ?? 'Patient';
+            final pname = m['patient_name']?.toString() ?? 'Patient';
+            final riskLabel = m['patient_risk']?.toString() ?? 'Faible';
+            Color riskColor = AppColors.riskLow;
+            if (riskLabel == 'Élevé') riskColor = AppColors.riskHigh;
+            if (riskLabel == 'Modéré') riskColor = AppColors.riskMedium;
+
             return PatientAppointment(
               id: id,
+              patientId: m['patient_id']?.toString() ?? '',
               patientName: pname,
               patientInitials: _initialsFromName(pname),
               reason: 'Consultation dermatologique',
               dateTime: dt,
-              riskLevel: '—',
-              riskColor: AppColors.riskMedium,
+              patientEmail: m['patient_email']?.toString() ?? '',
+              patientPhone: m['patient_phone']?.toString() ?? '',
+              patientVille: m['patient_ville']?.toString() ?? '',
+              riskLevel: riskLabel,
+              riskColor: riskColor,
               status: status,
             );
           }),
@@ -151,12 +169,14 @@ class DoctorDashboardProvider extends ChangeNotifier {
         diagnostics.add(
           PatientDiagnostic(
             id: m['id']?.toString() ?? '',
+            patientId: m['patient_id']?.toString() ?? '',
             patientName: pname,
             patientInitials: _initialsFromName(pname),
             zone: m['zone']?.toString() ?? m['result']?.toString() ?? 'Lésion',
             riskPercent: p,
             riskColor: _riskColorFromConfidence(conf),
-            riskLabel: m['result']?.toString() ?? _riskLabelFromConfidence(conf),
+            riskLabel:
+                m['result']?.toString() ?? _riskLabelFromConfidence(conf),
             date: created ?? DateTime.now(),
             imageUrl: m['image_url']?.toString() ?? '',
             abcdeFlags: const [],
@@ -174,12 +194,14 @@ class DoctorDashboardProvider extends ChangeNotifier {
         diagnostics.add(
           PatientDiagnostic(
             id: m['image_id']?.toString() ?? '',
+            patientId: m['patient_id']?.toString() ?? '',
             patientName: pname,
             patientInitials: _initialsFromName(pname),
             zone: m['diagnostic']?.toString() ?? 'Lésion',
             riskPercent: p,
             riskColor: _riskColorFromConfidence(conf),
-            riskLabel: m['result']?.toString() ?? _riskLabelFromConfidence(conf),
+            riskLabel:
+                m['result']?.toString() ?? _riskLabelFromConfidence(conf),
             date: obs ?? DateTime.now(),
             imageUrl: m['image_url']?.toString() ?? '',
             abcdeFlags: const [],

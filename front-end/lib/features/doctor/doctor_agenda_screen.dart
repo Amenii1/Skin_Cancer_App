@@ -74,7 +74,8 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen>
         .toList();
   }
 
-  int get _bookedCount => _currentSlots.where((s) => s.isReserved).length;
+  int get _bookedCount =>
+      _currentSlots.where((s) => s.status == 'accepted').length;
 
   @override
   Widget build(BuildContext context) {
@@ -543,29 +544,63 @@ class _SlotCard extends StatelessWidget {
                                           fontWeight: FontWeight.w700,
                                           color: AppColors.textPrimary,
                                         )),
-                                    Text(slot.reason ?? 'Consultation',
+                Text(slot.reason ?? 'Consultation',
                                         style: const TextStyle(
                                           fontFamily: 'Nunito',
                                           fontSize: 11,
                                           color: AppColors.textSecondary,
                                         )),
+                                    if ((slot.patientPhone ?? '').isNotEmpty ||
+                                        (slot.patientVille ?? '').isNotEmpty)
+                                      Text(
+                                        [
+                                          if ((slot.patientPhone ?? '').isNotEmpty)
+                                            slot.patientPhone!,
+                                          if ((slot.patientVille ?? '').isNotEmpty)
+                                            slot.patientVille!,
+                                        ].join(' - '),
+                                        style: const TextStyle(
+                                          fontFamily: 'Nunito',
+                                          fontSize: 10,
+                                          color: AppColors.textHint,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    if ((slot.patientEmail ?? '').isNotEmpty)
+                                      Text(
+                                        slot.patientEmail!,
+                                        style: const TextStyle(
+                                          fontFamily: 'Nunito',
+                                          fontSize: 10,
+                                          color: AppColors.textHint,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                   ],
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 7, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: riskColor.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(6),
+                              GestureDetector(
+                                onTap: () {
+                                  if (slot.patientId != null) {
+                                    context.push(
+                                        '/doctor-patient-detail/${slot.patientId}');
+                                  }
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 7, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: riskColor.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(slot.riskLevel ?? 'Normal',
+                                      style: TextStyle(
+                                        fontFamily: 'Nunito',
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w700,
+                                        color: riskColor,
+                                      )),
                                 ),
-                                child: Text(slot.riskLevel ?? 'Normal',
-                                    style: TextStyle(
-                                      fontFamily: 'Nunito',
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w700,
-                                      color: riskColor,
-                                    )),
                               ),
                             ]),
                             if (isPending) ...[
@@ -630,17 +665,33 @@ class _SlotCard extends StatelessWidget {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  Text(
-                                    slot.status == 'accepted'
-                                        ? 'Accepté'
-                                        : 'Refusé',
-                                    style: TextStyle(
-                                      fontFamily: 'Nunito',
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
                                       color: slot.status == 'accepted'
-                                          ? AppColors.riskLow
-                                          : AppColors.riskHigh,
+                                          ? AppColors.riskLow.withOpacity(0.1)
+                                          : AppColors.riskHigh.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: Border.all(
+                                        color: slot.status == 'accepted'
+                                            ? AppColors.riskLow.withOpacity(0.3)
+                                            : AppColors.riskHigh
+                                                .withOpacity(0.3),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      slot.status == 'accepted'
+                                          ? 'RDV Confirmé'
+                                          : 'RDV Refusé',
+                                      style: TextStyle(
+                                        fontFamily: 'Nunito',
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w800,
+                                        color: slot.status == 'accepted'
+                                            ? AppColors.riskLow
+                                            : AppColors.riskHigh,
+                                      ),
                                     ),
                                   ),
                                 ],

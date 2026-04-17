@@ -10,6 +10,7 @@ class Notification(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
     image_id = Column(Integer, ForeignKey("images.id"), nullable=True)
+    doctor_id = Column(Integer, ForeignKey("dermatologues.id"), nullable=True)
     title = Column(String(255), nullable=False)
     body = Column(Text, nullable=False)
     kind = Column(String(64), nullable=False, default="high_risk_referral")

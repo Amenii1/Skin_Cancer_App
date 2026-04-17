@@ -2,9 +2,39 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_current_user, get_db
+from app.models.dermatologue import Dermatologue
 from app.models.notification import Notification
+from app.models.utilisateur import Utilisateur
 
 router = APIRouter(prefix="/notifications", tags=["Notifications"])
+
+
+def _serialize_notification(db: Session, n: Notification) -> dict:
+    doctor_data = None
+    if n.doctor_id:
+        doctor = db.query(Dermatologue).filter(Dermatologue.id == n.doctor_id).first()
+        if doctor:
+            doctor_user = db.query(Utilisateur).filter(Utilisateur.id == doctor.user_id).first()
+            doctor_data = {
+                "id": doctor.id,
+                "name": doctor_user.nom if doctor_user else None,
+                "email": doctor_user.email if doctor_user else None,
+                "phone": doctor_user.telephone if doctor_user else None,
+                "specialite": doctor.specialite,
+                "ville": doctor.ville,
+                "adresse": doctor.adresse_cabinet,
+            }
+
+    return {
+        "id": n.id,
+        "title": n.title,
+        "body": n.body,
+        "kind": n.kind,
+        "read": n.read,
+        "image_id": n.image_id,
+        "doctor": doctor_data,
+        "created_at": n.created_at.isoformat() if n.created_at else None,
+    }
 
 
 @router.get("")
@@ -25,18 +55,7 @@ def list_notifications(
     rows = q.order_by(Notification.created_at.desc()).all()
 
     return {
-        "notifications": [
-            {
-                "id": n.id,
-                "title": n.title,
-                "body": n.body,
-                "kind": n.kind,
-                "read": n.read,
-                "image_id": n.image_id,
-                "created_at": n.created_at.isoformat() if n.created_at else None,
-            }
-            for n in rows
-        ]
+        "notifications": [_serialize_notification(db, n) for n in rows]
     }
 
 

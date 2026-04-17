@@ -210,6 +210,68 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<Map<String, dynamic>?> requestPasswordReset({
+    required String email,
+  }) async {
+    if (email.isEmpty || !_isValidEmail(email)) {
+      _errorMessage = 'Adresse email invalide.';
+      notifyListeners();
+      return null;
+    }
+    try {
+      final api = ApiClient();
+      final resp = await api.postJson(
+        '/auth/forgot-password',
+        body: {'email': email},
+      );
+      _errorMessage = null;
+      notifyListeners();
+      return resp;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      notifyListeners();
+      return null;
+    } catch (_) {
+      _errorMessage = 'Erreur lors de la demande de reinitialisation.';
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    if (email.isEmpty || code.isEmpty || newPassword.isEmpty) {
+      _errorMessage = 'Veuillez remplir tous les champs.';
+      notifyListeners();
+      return false;
+    }
+    try {
+      final api = ApiClient();
+      await api.postJson(
+        '/auth/reset-password',
+        body: {
+          'email': email,
+          'code': code,
+          'new_password': newPassword,
+        },
+      );
+      _errorMessage = null;
+      notifyListeners();
+      return true;
+    } on ApiException catch (e) {
+      _errorMessage = e.message;
+      notifyListeners();
+      return false;
+    } catch (_) {
+      _errorMessage = 'Erreur lors de la reinitialisation du mot de passe.';
+      notifyListeners();
+      return false;
+    }
+  }
+
   // ── Register ──────────────────────────────────────────────
   Future<bool> register({
     required String fullName,

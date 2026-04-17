@@ -1,4 +1,5 @@
-from datetime import date
+from datetime import date, datetime, timedelta
+import random
 
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
@@ -80,3 +81,47 @@ def login(db: Session, email, password):
         "access_token": token,
         "token_type": "bearer",
     }
+
+
+def request_password_reset(db: Session, email: str):
+    user = db.query(Utilisateur).filter(Utilisateur.email == email).first()
+    if not user:
+        return {
+            "message": "Si cet email existe, un code de reinitialisation a ete genere."
+        }
+
+    code = f"{random.randint(0, 999999):06d}"
+    user.reset_code = code
+    user.reset_code_expires_at = datetime.utcnow() + timedelta(minutes=15)
+    db.commit()
+
+    return {
+        "message": "Code de reinitialisation genere.",
+        "reset_code": code,  # dev-only until email sending is implemented
+        "expires_in_minutes": 15,
+    }
+
+
+def reset_password(db: Session, email: str, code: str, new_password: str):
+    user = db.query(Utilisateur).filter(Utilisateur.email == email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if not user.reset_code or not user.reset_code_expires_at:
+        raise HTTPException(status_code=400, detail="No reset request found")
+
+    if datetime.utcnow() > user.reset_code_expires_at:
+        raise HTTPException(status_code=400, detail="Reset code expired")
+
+    if user.reset_code != code:
+        raise HTTPException(status_code=400, detail="Invalid reset code")
+
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password too short")
+
+    user.password_hash = hash_password(new_password)
+    user.reset_code = None
+    user.reset_code_expires_at = None
+    db.commit()
+
+    return {"message": "Password reset successfully"}

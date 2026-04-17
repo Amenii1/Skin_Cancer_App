@@ -13,6 +13,7 @@ from app.models.image import Image
 from app.models.utilisateur import Utilisateur
 from app.models.dermatologue import Dermatologue
 from app.models.avis import Avis
+from app.models.patient import Patient
 
 router = APIRouter(prefix="/image", tags=["Image"])
 
@@ -284,9 +285,11 @@ def list_pending_opinions_for_doctor(
     out = []
     for r in rows:
         user = db.query(Utilisateur).filter(Utilisateur.id == r.user_id).first()
+        patient = db.query(Patient).filter(Patient.user_id == r.user_id).first()
         out.append(
             {
                 "id": r.id,
+                "patient_id": patient.id if patient else None,
                 "patient_name": user.nom if user else None,
                 "patient_email": user.email if user else None,
                 "observation_date": r.observation_date.isoformat()

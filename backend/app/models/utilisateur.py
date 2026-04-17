@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -12,6 +12,8 @@ class Utilisateur(Base):
     password_hash = Column(String)
     role = Column(String)
     telephone = Column(String, nullable=True)
+    reset_code = Column(String, nullable=True)
+    reset_code_expires_at = Column(DateTime, nullable=True)
 
     patient_profile = relationship(
         "Patient", back_populates="user", uselist=False

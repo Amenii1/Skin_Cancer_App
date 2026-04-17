@@ -10,6 +10,8 @@ from app.models.dermatologue import Dermatologue
 from app.models.patient import Patient
 from app.models.reservation import Reservation
 from app.models.utilisateur import Utilisateur
+from app.models.image import Image
+from app.services.notification_service import create_reservation_status_notification
 
 router = APIRouter(prefix="/reservations", tags=["Reservations"])
 
@@ -35,11 +37,32 @@ def _serialize_reservation(db: Session, reservation: Reservation) -> dict:
     if patient:
         patient_user = db.query(Utilisateur).filter(Utilisateur.id == patient.user_id).first()
 
+    # Get patient risk info
+    risk = "Faible"
+    if patient:
+        images = db.query(Image).filter(Image.user_id == patient.user_id).all()
+        for img in images:
+            if img.result == "melanoma":
+                risk = "Élevé"
+                break
+            elif img.result and ("carcinoma" in img.result.lower() or "basal" in img.result.lower()):
+                risk = "Modéré"
+
     return {
         "id": reservation.id,
         "patient_id": reservation.patient_id,
         "patient_name": patient_user.nom if patient_user else None,
         "patient_email": patient_user.email if patient_user else None,
+        "patient_phone": patient_user.telephone if patient_user else None,
+        "patient_ville": patient.ville if patient else None,
+        "patient_date_naissance": patient.date_naissance.isoformat()
+        if patient and patient.date_naissance
+        else None,
+        "patient_type_peau": patient.type_peau if patient else None,
+        "patient_antecedents_familiaux": patient.antecedents_familiaux
+        if patient
+        else None,
+        "patient_risk": risk,
         "disponibilite_id": reservation.disponibilite_id,
         "date_rdv": reservation.date_rdv.isoformat() if reservation.date_rdv else None,
         "status": reservation.status,
@@ -161,6 +184,10 @@ def update_reservation_status(
     if current_user.role != "doctor":
         raise HTTPException(status_code=403, detail="Only doctors")
 
+    doctor = db.query(Dermatologue).filter(Dermatologue.user_id == current_user.id).first()
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor profile not found")
+
     reservation = db.query(Reservation).filter(
         Reservation.id == reservation_id
     ).first()
@@ -168,19 +195,27 @@ def update_reservation_status(
     if not reservation:
         raise HTTPException(status_code=404, detail="Reservation not found")
 
+    dispo = (
+        db.query(Disponibilite)
+        .filter(Disponibilite.id == reservation.disponibilite_id)
+        .first()
+    )
+    if not dispo or dispo.dermatologue_id != doctor.id:
+        raise HTTPException(status_code=403, detail="This reservation is not yours")
+
     new_status = status or (payload or {}).get("status")
     if new_status not in ["accepted", "refused"]:
         raise HTTPException(status_code=400, detail="Invalid status")
 
     reservation.status = new_status
     if new_status == "refused":
-        dispo = (
-            db.query(Disponibilite)
-            .filter(Disponibilite.id == reservation.disponibilite_id)
-            .first()
-        )
-        if dispo:
-            dispo.is_reserved = False
+        dispo.is_reserved = False
+    create_reservation_status_notification(
+        db,
+        reservation=reservation,
+        doctor=doctor,
+        status=new_status,
+    )
     db.commit()
 
     return {

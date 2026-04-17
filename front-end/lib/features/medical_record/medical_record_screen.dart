@@ -8,7 +8,9 @@ import '../dashboard/dashboard_provider.dart';
 import 'medical_record_provider.dart';
 
 class MedicalRecordScreen extends StatefulWidget {
-  const MedicalRecordScreen({super.key});
+  final String? highlightImageId;
+
+  const MedicalRecordScreen({super.key, this.highlightImageId});
 
   @override
   State<MedicalRecordScreen> createState() => _MedicalRecordScreenState();
@@ -63,7 +65,10 @@ class _MedicalRecordScreenState extends State<MedicalRecordScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                ...prov.zones.map((zone) => _ZoneSection(zone: zone)),
+                ...prov.zones.map((zone) => _ZoneSection(
+                      zone: zone,
+                      highlightImageId: widget.highlightImageId,
+                    )),
               ],
             ],
           ),
@@ -208,8 +213,12 @@ class _SummaryCard extends StatelessWidget {
 
 class _ZoneSection extends StatelessWidget {
   final MedicalRecordZoneGroup zone;
+  final String? highlightImageId;
 
-  const _ZoneSection({required this.zone});
+  const _ZoneSection({
+    required this.zone,
+    this.highlightImageId,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -249,7 +258,10 @@ class _ZoneSection extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          ...zone.entries.map((entry) => _MedicalEntryCard(entry: entry)),
+          ...zone.entries.map((entry) => _MedicalEntryCard(
+                entry: entry,
+                highlighted: highlightImageId == entry.id.toString(),
+              )),
         ],
       ),
     );
@@ -258,8 +270,12 @@ class _ZoneSection extends StatelessWidget {
 
 class _MedicalEntryCard extends StatelessWidget {
   final MedicalRecordEntry entry;
+  final bool highlighted;
 
-  const _MedicalEntryCard({required this.entry});
+  const _MedicalEntryCard({
+    required this.entry,
+    this.highlighted = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -268,9 +284,16 @@ class _MedicalEntryCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.06),
+        color: highlighted
+            ? AppColors.primary.withValues(alpha: 0.08)
+            : color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withValues(alpha: 0.18)),
+        border: Border.all(
+          color: highlighted
+              ? AppColors.primary.withValues(alpha: 0.4)
+              : color.withValues(alpha: 0.18),
+          width: highlighted ? 1.5 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

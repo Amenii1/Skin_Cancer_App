@@ -53,7 +53,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen>
             SliverToBoxAdapter(
               child: prov.selectedTab == 0
                   ? _buildAppointments(context, prov)
-                  : _buildDiagnostics(context, prov),
+                  : _buildAvis(context, prov),
             ),
             const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
@@ -214,8 +214,8 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen>
             onTap: () => prov.setTab(0),
           ),
           _TabBtn(
-            label: 'Diagnostics',
-            icon: Icons.biotech_rounded,
+            label: 'Avis',
+            icon: Icons.rate_review_rounded,
             active: prov.selectedTab == 1,
             badge: prov.pendingDiagnostics,
             onTap: () => prov.setTab(1),
@@ -242,7 +242,7 @@ class _DoctorDashboardScreenState extends State<DoctorDashboardScreen>
   }
 
   // ── Liste diagnostics ─────────────────────────────────────
-  Widget _buildDiagnostics(BuildContext context, DoctorDashboardProvider prov) {
+  Widget _buildAvis(BuildContext context, DoctorDashboardProvider prov) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(children: [
@@ -962,73 +962,97 @@ class _AppointmentCard extends StatelessWidget {
                 )),
           ),
         ]),
-        // Boutons si en attente
-        if (isPending) ...[
-          const SizedBox(height: 12),
-          const Divider(color: AppColors.border, height: 1),
-          const SizedBox(height: 12),
-          Row(children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: onRefuse,
-                child: Container(
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: AppColors.riskHigh.withOpacity(0.07),
-                    borderRadius: BorderRadius.circular(10),
-                    border:
-                        Border.all(color: AppColors.riskHigh.withOpacity(0.25)),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            if (appt.patientPhone.isNotEmpty) ...[
+              const Icon(Icons.phone_outlined,
+                  size: 13, color: AppColors.textHint),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  appt.patientPhone,
+                  style: const TextStyle(
+                    fontFamily: 'Nunito',
+                    fontSize: 12,
+                    color: AppColors.textHint,
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.close_rounded,
-                          color: AppColors.riskHigh, size: 16),
-                      SizedBox(width: 6),
-                      Text('Refuser',
-                          style: TextStyle(
-                            fontFamily: 'Nunito',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.riskHigh,
-                          )),
-                    ],
-                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: GestureDetector(
-                onTap: onAccept,
-                child: Container(
-                  height: 38,
-                  decoration: BoxDecoration(
-                    color: AppColors.riskLow.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                    border:
-                        Border.all(color: AppColors.riskLow.withOpacity(0.3)),
+            ] else
+              const Spacer(),
+            if (appt.patientVille.isNotEmpty) ...[
+              const SizedBox(width: 8),
+              const Icon(Icons.location_on_outlined,
+                  size: 13, color: AppColors.textHint),
+              const SizedBox(width: 5),
+              Flexible(
+                child: Text(
+                  appt.patientVille,
+                  style: const TextStyle(
+                    fontFamily: 'Nunito',
+                    fontSize: 12,
+                    color: AppColors.textHint,
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.check_rounded,
-                          color: AppColors.riskLow, size: 16),
-                      SizedBox(width: 6),
-                      Text('Accepter',
-                          style: TextStyle(
-                            fontFamily: 'Nunito',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.riskLow,
-                          )),
-                    ],
-                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-          ]),
+            ],
+          ],
+        ),
+        if (appt.patientEmail.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              const Icon(Icons.mail_outline_rounded,
+                  size: 13, color: AppColors.textHint),
+              const SizedBox(width: 5),
+              Expanded(
+                child: Text(
+                  appt.patientEmail,
+                  style: const TextStyle(
+                    fontFamily: 'Nunito',
+                    fontSize: 12,
+                    color: AppColors.textHint,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
         ],
+        const SizedBox(height: 12),
+        const Divider(color: AppColors.border, height: 1),
+        const SizedBox(height: 12),
+        Row(children: [
+          Expanded(
+            child: _ActionBtn(
+              label: 'Voir Dossier',
+              color: AppColors.textHint,
+              onTap: () =>
+                  context.push('/doctor-patient-detail/${appt.patientId}'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          if (appt.status == AppointmentStatus.pending) ...[
+            Expanded(
+              child: _ActionBtn(
+                label: 'Refuser',
+                color: AppColors.riskHigh,
+                onTap: onRefuse,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _ActionBtn(
+                label: 'Accepter',
+                color: AppColors.riskLow,
+                onTap: onAccept,
+              ),
+            ),
+          ],
+        ]),
       ]),
     );
   }
@@ -1195,39 +1219,29 @@ class _DiagnosticCard extends StatelessWidget {
               ),
             ),
           ],
-          // Bouton avis
-          if (isPending) ...[
-            const SizedBox(height: 12),
-            const Divider(color: AppColors.border, height: 1),
-            const SizedBox(height: 12),
-            GestureDetector(
-              onTap: onGiveOpinion,
-              child: Container(
-                height: 40,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF7F77DD).withOpacity(0.08),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                      color: const Color(0xFF7F77DD).withOpacity(0.3)),
-                ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.rate_review_rounded,
-                        color: Color(0xFF7F77DD), size: 16),
-                    SizedBox(width: 8),
-                    Text('Donner mon avis médical',
-                        style: TextStyle(
-                          fontFamily: 'Nunito',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF7F77DD),
-                        )),
-                  ],
-                ),
+          // Boutons avis et dossier
+          const SizedBox(height: 12),
+          const Divider(color: AppColors.border, height: 1),
+          const SizedBox(height: 12),
+          Row(children: [
+            Expanded(
+              child: _ActionBtn(
+                label: 'Voir Dossier',
+                color: AppColors.textHint,
+                onTap: () =>
+                    context.push('/doctor-patient-detail/${diag.patientId}'),
               ),
             ),
-          ],
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: _ActionBtn(
+                label: isPending ? 'Donner mon avis' : 'Modifier mon avis',
+                color: const Color(0xFF7F77DD),
+                onTap: onGiveOpinion,
+              ),
+            ),
+          ]),
         ],
       ),
     );
@@ -1306,4 +1320,39 @@ class _LesionSimPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_) => false;
+}
+
+class _ActionBtn extends StatelessWidget {
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+  const _ActionBtn({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 38,
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: color.withOpacity(0.25)),
+        ),
+        child: Center(
+          child: Text(label,
+              style: TextStyle(
+                fontFamily: 'Nunito',
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: color,
+              )),
+        ),
+      ),
+    );
+  }
 }

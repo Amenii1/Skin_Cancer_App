@@ -165,28 +165,48 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         ),
         // Notification
-        Stack(children: [
-          Container(
-            width: 42, height: 42,
-            decoration: BoxDecoration(
-              color: AppColors.bgSoft,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.border),
-            ),
-            child: const Icon(Icons.notifications_outlined,
-                color: AppColors.textSecondary, size: 20),
-          ),
-          Positioned(
-            top: 8, right: 8,
-            child: Container(
-              width: 8, height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.riskHigh,
-                shape: BoxShape.circle,
+        GestureDetector(
+          onTap: () async {
+            await context.push('/notifications');
+            if (!mounted) return;
+            final auth = context.read<AuthProvider>();
+            await context.read<DashboardProvider>().syncFromBackend(auth.accessToken);
+          },
+          child: Stack(children: [
+            Container(
+              width: 42, height: 42,
+              decoration: BoxDecoration(
+                color: AppColors.bgSoft,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.border),
               ),
+              child: const Icon(Icons.notifications_outlined,
+                  color: AppColors.textSecondary, size: 20),
             ),
-          ),
-        ]),
+            if (prov.unreadNotifications > 0)
+              Positioned(
+                top: 6, right: 6,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: AppColors.riskHigh,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    prov.unreadNotifications > 9
+                        ? '9+'
+                        : '${prov.unreadNotifications}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+          ]),
+        ),
       ]),
     );
   }
