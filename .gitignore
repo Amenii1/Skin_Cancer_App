@@ -7,3 +7,4 @@ venv/
 uploads/
 *.db
 .DS_Store
+*.h5
