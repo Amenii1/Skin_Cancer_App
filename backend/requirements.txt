@@ -13,3 +13,4 @@ Pillow>=10.0.0
 h5py>=3.10.0
 keras==3.13.2
 tensorflow==2.19.0
+

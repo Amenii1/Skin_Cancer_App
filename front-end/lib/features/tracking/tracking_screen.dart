@@ -51,6 +51,8 @@ class _TrackingScreenState extends State<TrackingScreen>
               padding: const EdgeInsets.all(20),
               sliver: SliverList(
                 delegate: SliverChildListDelegate([
+                  _buildZoneSelector(prov),
+                  const SizedBox(height: 16),
                   _buildTimeline(prov),
                   const SizedBox(height: 16),
                   _buildCurrentEntry(prov),
@@ -66,6 +68,93 @@ class _TrackingScreenState extends State<TrackingScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildZoneSelector(TrackingProvider prov) {
+    if (prov.zones.length <= 1) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.bgWhite,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.primary.withOpacity(0.07),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Zones suivies',
+            style: TextStyle(
+              fontFamily: 'Nunito',
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: prov.zones.map((zone) {
+              final isSelected = zone.id == prov.selectedZoneId;
+              return GestureDetector(
+                onTap: () => prov.selectZone(zone.id),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 180),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? AppColors.primary.withOpacity(0.10)
+                        : AppColors.bgSoft,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary.withOpacity(0.35)
+                          : AppColors.border,
+                    ),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        zone.label,
+                        style: TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: isSelected
+                              ? AppColors.primary
+                              : AppColors.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        '${zone.entryCount} scan${zone.entryCount > 1 ? 's' : ''}',
+                        style: const TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 11,
+                          color: AppColors.textHint,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     );
   }
@@ -462,7 +551,7 @@ class _TrackingScreenState extends State<TrackingScreen>
             spacing: 8,
             runSpacing: 8,
             children: symptoms.map((s) {
-              final isOk = s == 'Aucun symptôme';
+              final isOk = s == 'Aucun symptôme' || s == 'Aucun symptôme ressenti';
               final color = isOk ? AppColors.riskLow : AppColors.riskMedium;
               return Container(
                 padding:

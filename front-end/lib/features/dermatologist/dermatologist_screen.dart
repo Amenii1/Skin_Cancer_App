@@ -35,8 +35,7 @@ class _DermatologistScreenState extends State<DermatologistScreen>
       final prov = context.read<DermatologistProvider>();
       final token = auth.accessToken;
       if (token != null && token.isNotEmpty) {
-        prov.syncFromBackend(token);
-        prov.getUserLocation();
+        prov.loadDoctorsWithLocation(token);
       }
     });
   }
