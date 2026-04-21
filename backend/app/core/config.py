@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Charger les variables d'environnement depuis .env
@@ -29,6 +30,11 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 APP_NAME = "Skin Cancer Detection API"
 DEBUG = True
+BASE_DIR = Path(__file__).resolve().parents[2]
+MODEL_PATH = os.getenv(
+    "MODEL_PATH",
+    str(BASE_DIR / "app" / "ml" / "skin_cancer_model.h5")
+)
 
 # ===============================
 # RISK & NOTIFICATIONS (prédiction -> alerte visite spécialiste)

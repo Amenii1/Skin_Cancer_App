@@ -65,6 +65,27 @@ API locale :
 http://127.0.0.1:8000
 ```
 
+## IntÃ©grer un modÃ¨le `.h5`
+
+Le backend charge par dÃ©faut le fichier :
+
+```text
+backend/app/ml/skin_cancer_model.h5
+```
+
+Option 1 : copier ton modÃ¨le tÃ©lÃ©chargÃ© vers ce chemin et le renommer en `skin_cancer_model.h5`.
+
+Option 2 : garder le fichier Ã  un autre emplacement et dÃ©finir la variable d'environnement `MODEL_PATH`.
+
+Exemple PowerShell :
+
+```powershell
+$env:MODEL_PATH="C:\Users\asma\Downloads\skin_cancer_model (1).h5"
+python -m uvicorn app.main:app --reload
+```
+
+Si le modÃ¨le est bien chargÃ©, l'endpoint `POST /prediction/{image_id}` utilisera directement ce fichier.
+
 ## Endpoints principaux
 
 - `/auth/register`

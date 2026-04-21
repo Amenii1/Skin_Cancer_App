@@ -273,6 +273,15 @@ class _CameraIntakeScreenState extends State<CameraIntakeScreen> {
               color: AppColors.textPrimary,
             ),
           ),
+          const SizedBox(height: 8),
+          const Text(
+            'Prenez une photo directement dans l\'application ou choisissez une image de votre galerie.',
+            style: TextStyle(
+              fontFamily: 'Nunito',
+              fontSize: 12,
+              color: AppColors.textHint,
+            ),
+          ),
           const SizedBox(height: 12),
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
@@ -282,36 +291,112 @@ class _CameraIntakeScreenState extends State<CameraIntakeScreen> {
               color: AppColors.bgSoft,
               child: _imageBytes == null
                   ? const Center(
-                      child: Text(
-                        'Aucune image sélectionnée',
-                        style: TextStyle(
-                          fontFamily: 'Nunito',
-                          color: AppColors.textHint,
-                        ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.camera_alt_rounded,
+                            size: 34,
+                            color: AppColors.textHint,
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Aucune image selectionnee',
+                            style: TextStyle(
+                              fontFamily: 'Nunito',
+                              color: AppColors.textHint,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          SizedBox(height: 6),
+                          Text(
+                            'Utilisez la camera pour une prise instantanee.',
+                            style: TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 12,
+                              color: AppColors.textHint,
+                            ),
+                          ),
+                        ],
                       ),
                     )
-                  : Image.memory(_imageBytes!, fit: BoxFit.cover),
+                  : Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Image.memory(_imageBytes!, fit: BoxFit.cover),
+                        Positioned(
+                          top: 12,
+                          right: 12,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.55),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: IconButton(
+                              onPressed: () => setState(() => _imageBytes = null),
+                              icon: const Icon(Icons.close_rounded, color: Colors.white),
+                              tooltip: 'Retirer l\'image',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
             ),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.gallery),
-                  icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text('Galerie'),
+                child: ElevatedButton.icon(
+                  onPressed: () => _pickImage(ImageSource.camera),
+                  icon: const Icon(Icons.camera_alt_rounded),
+                  label: Text(
+                    _imageBytes == null ? 'Prendre une photo' : 'Reprendre une photo',
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: ElevatedButton.icon(
-                  onPressed: () => _pickImage(ImageSource.camera),
-                  icon: const Icon(Icons.camera_alt_rounded),
-                  label: const Text('Caméra'),
+                child: OutlinedButton.icon(
+                  onPressed: () => _pickImage(ImageSource.gallery),
+                  icon: const Icon(Icons.photo_library_outlined),
+                  label: const Text('Choisir en galerie'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                  ),
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.06),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Row(
+              children: [
+                Icon(Icons.bolt_rounded, color: AppColors.primary, size: 16),
+                SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'La photo prise dans l\'application est utilisee directement pour l\'analyse. Aucun upload manuel supplementaire n\'est necessaire.',
+                    style: TextStyle(
+                      fontFamily: 'Nunito',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

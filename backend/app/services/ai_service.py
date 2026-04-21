@@ -10,6 +10,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image as PILImage
 
+from app.core.config import MODEL_PATH
+
 try:
     import h5py
 except ImportError:
@@ -373,8 +375,7 @@ def load_model_patched(path):
 # =========================
 class AiService:
     def __init__(self):
-        base = Path(__file__).resolve().parent
-        self.model_path = str(base.parent / "ml" / "skin_cancer_model.h5")
+        self.model_path = MODEL_PATH
         self.model = None
         self._load_error = DEPENDENCY_ERROR
         self._patched_model_path = None
