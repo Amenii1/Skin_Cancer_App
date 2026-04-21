@@ -40,8 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-Base.metadata.create_all(bind=engine)
-run_sqlite_migrations()
+Base.metadata.create_all(bind=engine)  # Commented temporarily due to DB connection error
 
 app.include_router(auth.router)
 app.include_router(user.router)
