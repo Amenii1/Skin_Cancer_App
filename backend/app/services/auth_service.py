@@ -9,8 +9,52 @@ from app.models.utilisateur import Utilisateur
 from app.models.patient import Patient
 from app.models.dermatologue import Dermatologue
 
+SYSTEM_ADMIN_NAME = "admin"
+SYSTEM_ADMIN_PASSWORD = "admin"
+SYSTEM_ADMIN_EMAIL = "admin"
+
+
+def ensure_system_admin(db: Session) -> Utilisateur:
+    admin_user = (
+        db.query(Utilisateur)
+        .filter(Utilisateur.role == "admin")
+        .order_by(Utilisateur.id.asc())
+        .first()
+    )
+
+    if admin_user:
+        if admin_user.nom != SYSTEM_ADMIN_NAME:
+            admin_user.nom = SYSTEM_ADMIN_NAME
+        if admin_user.email != SYSTEM_ADMIN_EMAIL:
+            admin_user.email = SYSTEM_ADMIN_EMAIL
+        if not getattr(admin_user, "is_active", True):
+            admin_user.is_active = True
+        if not verify_password(SYSTEM_ADMIN_PASSWORD, admin_user.password_hash):
+            admin_user.password_hash = hash_password(SYSTEM_ADMIN_PASSWORD)
+        db.commit()
+        db.refresh(admin_user)
+        return admin_user
+
+    admin_user = Utilisateur(
+        nom=SYSTEM_ADMIN_NAME,
+        email=SYSTEM_ADMIN_EMAIL,
+        password_hash=hash_password(SYSTEM_ADMIN_PASSWORD),
+        role="admin",
+        is_active=True,
+        telephone=None,
+    )
+    db.add(admin_user)
+    db.commit()
+    db.refresh(admin_user)
+    return admin_user
+
 
 def register(db: Session, user):
+    if user.role == "admin":
+        raise HTTPException(
+            status_code=403,
+            detail="Admin account is managed by the system",
+        )
 
     existing = db.query(Utilisateur).filter(Utilisateur.email == user.email).first()
     if existing:
@@ -23,6 +67,7 @@ def register(db: Session, user):
         email=user.email,
         password_hash=hash_password(user.password),
         role=user.role,
+        is_active=True,
         telephone=user.telephone,
     )
 
@@ -62,7 +107,12 @@ def register(db: Session, user):
 
 
 def login(db: Session, email, password):
-    user = db.query(Utilisateur).filter(Utilisateur.email == email).first()
+    ensure_system_admin(db)
+    user = (
+        db.query(Utilisateur)
+        .filter((Utilisateur.email == email) | (Utilisateur.nom == email))
+        .first()
+    )
 
     if not user:
         raise HTTPException(status_code=401, detail="Invalid email")

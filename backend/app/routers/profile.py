@@ -22,6 +22,7 @@ def get_profile(
         "nom": current_user.nom,
         "email": current_user.email,
         "role": current_user.role,
+        "is_active": getattr(current_user, "is_active", True),
         "telephone": current_user.telephone,
     }
 

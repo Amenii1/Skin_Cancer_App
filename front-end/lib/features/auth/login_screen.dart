@@ -52,7 +52,9 @@ class _LoginScreenState extends State<LoginScreen>
     );
     if (ok && mounted) {
       // Redirection selon le rôle
-      if (auth.isDermatologue) {
+      if (auth.isAdmin) {
+        context.go('/admin-dashboard');
+      } else if (auth.isDermatologue) {
         context.go('/doctor-dashboard');
       } else {
         context.go('/dashboard');
@@ -201,6 +203,8 @@ class _LoginScreenState extends State<LoginScreen>
                       const SizedBox(height: 28),
                       _buildDivider(),
                       const SizedBox(height: 20),
+                      _buildAdminAccessNote(),
+                      const SizedBox(height: 16),
                       _buildDemoAccounts(),
                       const SizedBox(height: 28),
                       _buildSignUpLink(),
@@ -301,8 +305,8 @@ class _LoginScreenState extends State<LoginScreen>
             const SizedBox(height: 16),
           ],
           AuthTextField(
-            label: 'Adresse email',
-            hint: 'exemple@email.com',
+            label: 'Email ou admin',
+            hint: 'exemple@email.com ou admin',
             prefixIcon: Icons.email_outlined,
             keyboardType: TextInputType.emailAddress,
             controller: _emailCtrl,
@@ -367,34 +371,67 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   // ── Comptes démo ──────────────────────────────────────────
+  Widget _buildAdminAccessNote() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.primary.withOpacity(0.16)),
+      ),
+      child: const Row(
+        children: [
+          Icon(Icons.admin_panel_settings_rounded, color: AppColors.primary),
+          SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Administrateur systeme unique : identifiant admin, mot de passe admin.',
+              style: TextStyle(
+                fontFamily: 'Nunito',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryDark,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDemoAccounts() {
-    return Row(children: [
-      Expanded(
-        child: _DemoCard(
-          role: 'Patient',
-          email: 'patient@demo.com',
-          icon: Icons.person_rounded,
-          color: AppColors.primary,
-          onTap: () {
-            _emailCtrl.text = 'patient@demo.com';
-            _passCtrl.text = 'demo1234';
-          },
+    return Wrap(
+      spacing: 12,
+      runSpacing: 12,
+      children: [
+        SizedBox(
+          width: 150,
+          child: _DemoCard(
+            role: 'Patient',
+            email: 'patient@demo.com',
+            icon: Icons.person_rounded,
+            color: AppColors.primary,
+            onTap: () {
+              _emailCtrl.text = 'patient@demo.com';
+              _passCtrl.text = 'demo1234';
+            },
+          ),
         ),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: _DemoCard(
-          role: 'Dermatologue',
-          email: 'dermato@demo.com',
-          icon: Icons.medical_services_rounded,
-          color: const Color(0xFF7F77DD),
-          onTap: () {
-            _emailCtrl.text = 'dermato@demo.com';
-            _passCtrl.text = 'demo1234';
-          },
+        SizedBox(
+          width: 150,
+          child: _DemoCard(
+            role: 'Dermatologue',
+            email: 'dermato@demo.com',
+            icon: Icons.medical_services_rounded,
+            color: const Color(0xFF7F77DD),
+            onTap: () {
+              _emailCtrl.text = 'dermato@demo.com';
+              _passCtrl.text = 'demo1234';
+            },
+          ),
         ),
-      ),
-    ]);
+      ],
+    );
   }
 
   Widget _buildSignUpLink() {

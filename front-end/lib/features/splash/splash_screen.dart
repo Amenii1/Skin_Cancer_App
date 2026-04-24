@@ -67,7 +67,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     if (!mounted) return;
     if (auth.isLoggedIn) {
-      if (auth.isDermatologue) {
+      if (auth.isAdmin) {
+        context.go('/admin-dashboard');
+      } else if (auth.isDermatologue) {
         context.go('/doctor-dashboard');
       } else {
         context.go('/dashboard');

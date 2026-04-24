@@ -38,6 +38,8 @@ import 'features/medical_record/medical_record_provider.dart';
 import 'features/medical_record/medical_record_screen.dart';
 import 'features/notifications/patient_notifications_provider.dart';
 import 'features/notifications/patient_notifications_screen.dart';
+import 'features/admin/admin_provider.dart';
+import 'features/admin/admin_dashboard_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -115,6 +117,10 @@ final GoRouter _router = GoRouter(
         pageBuilder: (_, __) =>
             const NoTransitionPage(child: DoctorDashboardScreen())),
     GoRoute(
+        path: '/admin-dashboard',
+        pageBuilder: (_, __) =>
+            const NoTransitionPage(child: AdminDashboardScreen())),
+    GoRoute(
         path: '/doctor-patients',
         pageBuilder: (_, __) =>
             const NoTransitionPage(child: DoctorPatientsScreen())),
@@ -158,6 +164,7 @@ class DermaScanApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => DoctorPatientDetailProvider()),
         ChangeNotifierProvider(create: (_) => MedicalRecordProvider()),
         ChangeNotifierProvider(create: (_) => PatientNotificationsProvider()),
+        ChangeNotifierProvider(create: (_) => AdminProvider()),
       ],
       child: MaterialApp.router(
         title: 'DermaScan AI',

@@ -34,6 +34,7 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _currentUser != null;
   bool get isPatient => _currentUser?.isPatient ?? false;
   bool get isDermatologue => _currentUser?.isDermatologue ?? false;
+  bool get isAdmin => _currentUser?.isAdmin ?? false;
 
   // Toggles UI
   void togglePassword() {
@@ -81,7 +82,11 @@ class AuthProvider extends ChangeNotifier {
         (rawEmail != null && rawEmail.isNotEmpty) ? rawEmail : emailFallback;
     final roleStr = profileResp['role']?.toString() ?? 'patient';
 
-    final role = roleStr == 'doctor' ? UserRole.dermatologue : UserRole.patient;
+    final role = switch (roleStr) {
+      'doctor' => UserRole.dermatologue,
+      'admin' => UserRole.admin,
+      _ => UserRole.patient,
+    };
 
     final patientOrDoctorInfo = roleStr == 'doctor'
         ? profileResp['doctor_info']
@@ -154,8 +159,8 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
-    if (!_isValidEmail(email)) {
-      _errorMessage = 'Adresse email invalide.';
+    if (!_isValidLoginIdentifier(email)) {
+      _errorMessage = 'Identifiant invalide.';
       _status = AuthStatus.error;
       notifyListeners();
       return false;
@@ -453,6 +458,11 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  bool _isValidLoginIdentifier(String value) {
+    if (value.trim().toLowerCase() == 'admin') return true;
+    return _isValidEmail(value);
   }
 
   bool _isValidEmail(String email) =>

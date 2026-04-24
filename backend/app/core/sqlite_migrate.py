@@ -10,6 +10,13 @@ def run_sqlite_migrations() -> None:
     with engine.connect() as conn:
         if insp.has_table("users"):
             cols = {c["name"] for c in insp.get_columns("users")}
+            if "is_active" not in cols:
+                conn.execute(
+                    text(
+                        "ALTER TABLE users ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1"
+                    )
+                )
+                conn.commit()
             if "telephone" not in cols:
                 conn.execute(text("ALTER TABLE users ADD COLUMN telephone VARCHAR"))
                 conn.commit()

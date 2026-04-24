@@ -1,4 +1,4 @@
-enum UserRole { patient, dermatologue }
+enum UserRole { patient, dermatologue, admin }
 
 class UserModel {
   final String id;
@@ -27,8 +27,18 @@ class UserModel {
 
   bool get isPatient => role == UserRole.patient;
   bool get isDermatologue => role == UserRole.dermatologue;
+  bool get isAdmin => role == UserRole.admin;
 
-  String get roleLabel => role == UserRole.patient ? 'Patient' : 'Dermatologue';
+  String get roleLabel {
+    switch (role) {
+      case UserRole.patient:
+        return 'Patient';
+      case UserRole.dermatologue:
+        return 'Dermatologue';
+      case UserRole.admin:
+        return 'Administrateur';
+    }
+  }
 
   String get initials {
     final parts = fullName.split(' ');

@@ -2,8 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.core.database import Base, engine
+from app.core.database import Base, engine, SessionLocal
 from app.core.sqlite_migrate import run_sqlite_migrations
+from app.services.auth_service import ensure_system_admin
 
 from app.models.utilisateur import Utilisateur  # noqa: F401
 from app.models.patient import Patient  # noqa: F401
@@ -13,6 +14,7 @@ from app.models.avis import Avis  # noqa: F401
 from app.models.notification import Notification  # noqa: F401
 
 from app.routers import (
+    admin,
     auth,
     user,
     profile,
@@ -40,8 +42,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+run_sqlite_migrations()
 Base.metadata.create_all(bind=engine)  # Commented temporarily due to DB connection error
 
+with SessionLocal() as db:
+    ensure_system_admin(db)
+
+app.include_router(admin.router)
 app.include_router(auth.router)
 app.include_router(user.router)
 app.include_router(profile.router)
